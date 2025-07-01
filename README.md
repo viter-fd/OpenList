@@ -91,7 +91,7 @@ Please refer to [*Discussions*](https://github.com/OpenListTeam/OpenList/discuss
 
 ## License
 
-The `OpenList` is open-source software licensed under the AGPL-3.0 license.
+The `OpenList` is open-source software licensed under the [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.txt) license.
 
 ## Disclaimer
 
@@ -103,7 +103,7 @@ It only performs HTTP 302 redirects or traffic forwarding, and does not intercep
 - The software is provided "as is", without any warranties of any kind, either express or implied, including but not limited to warranties of merchantability or fitness for a particular purpose.
 - The maintainers are not liable for any direct or indirect damages arising from the use of, or inability to use, this software.
 - You are solely responsible for any risks associated with using this software, including but not limited to account bans or download speed limitations.
-- This project is licensed under the AGPL-3.0 License. Please see the LICENSE file for details.
+- This project is licensed under the [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.txt) License. Please see the [LICENSE](./LICENSE) file for details.
 
 ## Contact Us
 

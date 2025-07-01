@@ -1,9 +1,9 @@
 <div align="center">
   <img style="width: 128px; height: 128px;" src="https://raw.githubusercontent.com/OpenListTeam/Logo/main/logo.svg" alt="logo" />
-  
+
   <p><em>OpenList is a resilient, community-driven fork of AList — built to defend open source against trust-based attacks.</em></p>
 
-  <a href="https://goreportcard.com/report/github.com/OpenListTeam/OpenList/v3"><img src="https://goreportcard.com/badge/github.com/OpenListTeam/OpenList/v3" alt="latest version" /></a>
+  <a href="https://goreportcard.com/report/github.com/OpenListTeam/OpenList/"><img src="https://goreportcard.com/badge/github.com/OpenListTeam/OpenList/" alt="latest version" /></a>
   <a href="https://github.com/OpenListTeam/OpenList/blob/main/LICENSE"><img src="https://img.shields.io/github/license/OpenListTeam/OpenList" alt="License" /></a>
   <a href="https://github.com/OpenListTeam/OpenList/actions?query=workflow%3ABuild"><img src="https://img.shields.io/github/actions/workflow/status/OpenListTeam/OpenList/build.yml?branch=main" alt="Build status" /></a>
   <a href="https://github.com/OpenListTeam/OpenList/releases"><img src="https://img.shields.io/github/release/OpenListTeam/OpenList" alt="latest version" /></a>

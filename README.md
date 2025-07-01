@@ -98,7 +98,7 @@ The `OpenList` is open-source software licensed under the [AGPL-3.0](https://www
 - This project is a free and open-source software designed to facilitate file sharing via net disks, primarily intended to support the downloading and learning of the Go programming language.
 - Please comply with all applicable laws and regulations when using this software. Any form of misuse is strictly prohibited.
 - The software is based on official SDKs or APIs without any modification, disruption, or interference with their behavior.
-It only performs HTTP 302 redirects or traffic forwarding, and does not intercept, store, or tamper with any user data.
+- It only performs HTTP 302 redirects or traffic forwarding, and does not intercept, store, or tamper with any user data.
 - This project is not affiliated with any official platform or service provider.
 - The software is provided "as is", without any warranties of any kind, either express or implied, including but not limited to warranties of merchantability or fitness for a particular purpose.
 - The maintainers are not liable for any direct or indirect damages arising from the use of, or inability to use, this software.

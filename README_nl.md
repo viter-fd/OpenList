@@ -98,7 +98,7 @@ Stel algemene vragen in [*Discussions*](https://github.com/OpenListTeam/OpenList
 - Dit project is gratis en open-source software, ontworpen om het delen van bestanden via netdisks te vergemakkelijken, voornamelijk bedoeld ter ondersteuning van het downloaden en leren van de programmeertaal Go.
 - Houd u bij het gebruik van deze software aan alle toepasselijke wetten en voorschriften. Elk misbruik is ten strengste verboden.
 - De software is gebaseerd op officiële SDK's of API's zonder enige wijziging, verstoring of beïnvloeding van hun gedrag.
-  Het voert alleen HTTP 302-omleidingen of verkeersdoorsturing uit en onderschept, slaat of wijzigt geen gebruikersgegevens.
+- Het voert alleen HTTP 302-omleidingen of verkeersdoorsturing uit en onderschept, slaat of wijzigt geen gebruikersgegevens.
 - Dit project is niet gelieerd aan enig officieel platform of dienstverlener.
 - De software wordt geleverd "zoals deze is", zonder enige vorm van garantie, expliciet of impliciet, inclusief maar niet beperkt tot garanties van verkoopbaarheid of geschiktheid voor een bepaald doel.
 - De beheerders zijn niet aansprakelijk voor enige directe of indirecte schade die voortvloeit uit het gebruik van of het onvermogen om deze software te gebruiken.

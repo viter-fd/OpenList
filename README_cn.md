@@ -14,7 +14,7 @@
 
 ---
 
-- [English](./README.md) | 中文 | [日本語](./README_ja.md)
+- [English](./README.md) | 中文 | [日本語](./README_ja.md) | [Dutch](./README_nl.md)
 
 - [贡献指南](./CONTRIBUTING.md)
 - [行为准则](./CODE_OF_CONDUCT.md)

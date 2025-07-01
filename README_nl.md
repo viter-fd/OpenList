@@ -80,6 +80,8 @@
 
 - 📘 [Documentatie & Installatiegids](https://docs.oplist.org)
 - 📚 [Back-up documentatiesite](https://docs.openlist.team)
+- ⚖️ [Gebruiksvoorwaarden](https://docs.oplist.org/terms)
+- 🔒 [Privacybeleid](https://docs.oplist.org/privacy)
 
 ## Demo
 

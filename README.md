@@ -78,8 +78,8 @@
 
 ## Document
 
-- <https://docs.oplist.org>
-- <https://docs.openlist.team>
+- 📘 [Docs & Install Guide](https://docs.oplist.org)
+- 📚 [Backup Docs Site](https://docs.openlist.team)
 
 ## Demo
 

@@ -78,8 +78,8 @@
 
 ## 文档
 
-- <https://docs.oplist.org>
-- <https://docs.openlist.team>
+- 📘 [文档与安装指南](https://docs.oplist.org)
+- 📚 [备用文档站点](https://docs.openlist.team)
 
 ## 演示
 

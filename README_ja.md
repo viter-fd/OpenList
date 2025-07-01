@@ -78,8 +78,8 @@
 
 ## ドキュメント
 
-- <https://docs.oplist.org>
-- <https://docs.openlist.team>
+- 📘 [ドキュメント・インストールガイド](https://docs.oplist.org)
+- 📚 [バックアップドキュメントサイト](https://docs.openlist.team)
 
 ## デモ
 

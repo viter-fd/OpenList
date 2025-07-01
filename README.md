@@ -1,23 +1,12 @@
 <div align="center">
   <img style="width: 128px; height: 128px;" src="https://raw.githubusercontent.com/OpenListTeam/Logo/main/logo.svg" alt="logo" />
   <p><em>🗂️A file list program that supports multiple storages, powered by Gin and SolidJS, fork of AList.</em></p>
-  <a href="https://goreportcard.com/report/github.com/OpenListTeam/OpenList/v3">
-    <img src="https://goreportcard.com/badge/github.com/OpenListTeam/OpenList/" alt="latest version" />
-  </a>
-  <a href="https://github.com/OpenListTeam/OpenList/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/OpenListTeam/OpenList" alt="License" />
-  </a>
-  <a href="https://github.com/OpenListTeam/OpenList/actions?query=workflow%3ABuild">
-    <img src="https://img.shields.io/github/actions/workflow/status/OpenListTeam/OpenList/build.yml?branch=main" alt="Build status" />
-  </a>
-  <a href="https://github.com/OpenListTeam/OpenList/releases">
-    <img src="https://img.shields.io/github/release/OpenListTeam/OpenList" alt="latest version" />
-  </a>
-  <a href="https://github.com/OpenListTeam/OpenList/discussions">
-    <img src="https://img.shields.io/github/discussions/OpenListTeam/OpenList?color=%23ED8936" alt="discussions" /></a>
-  <a href="https://github.com/OpenListTeam/OpenList/releases">
-    <img src="https://img.shields.io/github/downloads/OpenListTeam/OpenList/total?color=%239F7AEA&logo=github" alt="Downloads" />
-  </a>
+  <a href="https://goreportcard.com/report/github.com/OpenListTeam/OpenList/v3"><img src="https://goreportcard.com/badge/github.com/OpenListTeam/OpenList/v3" alt="latest version" /></a>
+  <a href="https://github.com/OpenListTeam/OpenList/blob/main/LICENSE"><img src="https://img.shields.io/github/license/OpenListTeam/OpenList" alt="License" /></a>
+  <a href="https://github.com/OpenListTeam/OpenList/actions?query=workflow%3ABuild"><img src="https://img.shields.io/github/actions/workflow/status/OpenListTeam/OpenList/build.yml?branch=main" alt="Build status" /></a>
+  <a href="https://github.com/OpenListTeam/OpenList/releases"><img src="https://img.shields.io/github/release/OpenListTeam/OpenList" alt="latest version" /></a>
+  <a href="https://github.com/OpenListTeam/OpenList/discussions"><img src="https://img.shields.io/github/discussions/OpenListTeam/OpenList?color=%23ED8936" alt="discussions" /></a>
+  <a href="https://github.com/OpenListTeam/OpenList/releases"><img src="https://img.shields.io/github/downloads/OpenListTeam/OpenList/total?color=%239F7AEA&logo=github" alt="Downloads" /></a>
 </div>
 
 ---

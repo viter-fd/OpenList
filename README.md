@@ -1,11 +1,3 @@
-# README
-
-- English | [中文](./README_cn.md) | [日本語](./README_ja.md)
-
-- [Contributing](./CONTRIBUTING.md)
-- [CODE OF CONDUCT](./CODE_OF_CONDUCT.md)
-- [LICENSE](./LICENSE)
-
 <div align="center">
   <img style="width: 128px; height: 128px;" src="https://raw.githubusercontent.com/OpenListTeam/Logo/main/logo.svg" alt="logo" />
 
@@ -21,6 +13,12 @@
 </div>
 
 ---
+
+- English | [中文](./README_cn.md) | [日本語](./README_ja.md)
+
+- [Contributing](./CONTRIBUTING.md)
+- [CODE OF CONDUCT](./CODE_OF_CONDUCT.md)
+- [LICENSE](./LICENSE)
 
 ## Features
 

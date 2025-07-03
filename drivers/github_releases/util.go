@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/OpenListTeam/OpenList/v4/drivers/base"
-	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 // 发送 GET 请求

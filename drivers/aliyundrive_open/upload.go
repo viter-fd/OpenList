@@ -18,8 +18,8 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/pkg/http_range"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 	"github.com/avast/retry-go"
-	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 func makePartInfos(size int) []base.Json {

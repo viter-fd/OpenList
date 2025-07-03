@@ -15,8 +15,8 @@ import (
 
 	"github.com/OpenListTeam/OpenList/v4/drivers/base"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
 	jsoniter "github.com/json-iterator/go"
+	"resty.dev/v3"
 )
 
 const (
@@ -76,7 +76,7 @@ func (d *Pan123Share) request(url string, method string, callback base.ReqCallba
 	if err != nil {
 		return nil, err
 	}
-	body := res.Body()
+	body := res.Bytes()
 	code := utils.Json.Get(body, "code").ToInt()
 	if code != 0 {
 		return nil, errors.New(jsoniter.Get(body, "message").ToString())

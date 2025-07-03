@@ -22,9 +22,9 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/op"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"github.com/go-resty/resty/v2"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
+	"resty.dev/v3"
 )
 
 var AndroidAlgorithms = []string{
@@ -121,7 +121,7 @@ func (d *PikPak) login() error {
 	if e.ErrorCode != 0 {
 		return &e
 	}
-	data := res.Body()
+	data := res.Bytes()
 	d.RefreshToken = jsoniter.Get(data, "refresh_token").ToString()
 	d.AccessToken = jsoniter.Get(data, "access_token").ToString()
 	d.Common.SetUserID(jsoniter.Get(data, "sub").ToString())
@@ -157,7 +157,7 @@ func (d *PikPak) refreshToken(refreshToken string) error {
 		op.MustSaveDriverStorage(d)
 		return errors.New(e.Error())
 	}
-	data := res.Body()
+	data := res.Bytes()
 	d.Status = "work"
 	d.RefreshToken = jsoniter.Get(data, "refresh_token").ToString()
 	d.AccessToken = jsoniter.Get(data, "access_token").ToString()
@@ -194,7 +194,7 @@ func (d *PikPak) request(url string, method string, callback base.ReqCallback, r
 
 	switch e.ErrorCode {
 	case 0:
-		return res.Body(), nil
+		return res.Bytes(), nil
 	case 4122, 4121, 16:
 		// access_token 过期
 		if err1 := d.refreshToken(d.RefreshToken); err1 != nil {

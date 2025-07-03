@@ -12,8 +12,8 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/drivers/base"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 	"github.com/foxxorcat/mopan-sdk-go"
-	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 func (d *ILanZou) login() error {
@@ -92,7 +92,7 @@ func (d *ILanZou) request(pathname, method string, callback base.ReqCallback, pr
 		return nil, err
 	}
 	isRetry := len(retry) > 0 && retry[0]
-	body := res.Body()
+	body := res.Bytes()
 	code := utils.Json.Get(body, "code").ToInt()
 	msg := utils.Json.Get(body, "msg").ToString()
 	if code != 200 {

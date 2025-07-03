@@ -355,8 +355,8 @@ func (d *BaiduNetdisk) uploadSlice(ctx context.Context, params map[string]string
 		return err
 	}
 	log.Debugln(res.RawResponse.Status + res.String())
-	errCode := utils.Json.Get(res.Body(), "error_code").ToInt()
-	errNo := utils.Json.Get(res.Body(), "errno").ToInt()
+	errCode := utils.Json.Get(res.Bytes(), "error_code").ToInt()
+	errNo := utils.Json.Get(res.Bytes(), "errno").ToInt()
 	if errCode != 0 || errNo != 0 {
 		return errs.NewErr(errs.StreamIncomplete, "error in uploading to baidu, will retry. response=%s", res.String())
 	}

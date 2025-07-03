@@ -17,8 +17,8 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/op"
 	"github.com/OpenListTeam/OpenList/v4/pkg/cookie"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 // do others that not defined in Driver interface
@@ -62,7 +62,7 @@ func (d *QuarkOrUC) request(pathname string, method string, callback base.ReqCal
 	if e.Status >= 400 || e.Code != 0 {
 		return nil, errors.New(e.Message)
 	}
-	return res.Body(), nil
+	return res.Bytes(), nil
 }
 
 func (d *QuarkOrUC) GetFiles(parent string) ([]model.Obj, error) {

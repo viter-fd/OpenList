@@ -16,8 +16,8 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/model"
 	"github.com/OpenListTeam/OpenList/v4/internal/op"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 var upClient *resty.Client
@@ -62,8 +62,8 @@ func (d *LanZou) post(url string, callback base.ReqCallback, resp interface{}) (
 
 func (d *LanZou) _post(url string, callback base.ReqCallback, resp interface{}, up bool) ([]byte, error) {
 	data, err := d.request(url, http.MethodPost, func(req *resty.Request) {
-		req.AddRetryCondition(func(r *resty.Response, err error) bool {
-			if utils.Json.Get(r.Body(), "zt").ToInt() == 4 {
+		req.AddRetryConditions(func(r *resty.Response, err error) bool {
+			if utils.Json.Get(r.Bytes(), "zt").ToInt() == 4 {
 				time.Sleep(time.Second)
 				return true
 			}
@@ -123,7 +123,7 @@ func (d *LanZou) request(url string, method string, callback base.ReqCallback, u
 		return nil, err
 	}
 	log.Debugf("lanzou request: url=>%s ,stats=>%d ,body => %s\n", res.Request.URL, res.StatusCode(), res.String())
-	return res.Body(), err
+	return res.Bytes(), err
 }
 
 func (d *LanZou) Login() ([]*http.Cookie, error) {
@@ -141,8 +141,8 @@ func (d *LanZou) Login() ([]*http.Cookie, error) {
 	if err != nil {
 		return nil, err
 	}
-	if utils.Json.Get(resp.Body(), "zt").ToInt() != 1 {
-		return nil, fmt.Errorf("login err: %s", resp.Body())
+	if utils.Json.Get(resp.Bytes(), "zt").ToInt() != 1 {
+		return nil, fmt.Errorf("login err: %s", resp.Bytes())
 	}
 	d.Cookie = CookieToString(resp.Cookies())
 	return resp.Cookies(), nil

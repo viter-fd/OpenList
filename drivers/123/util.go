@@ -15,9 +15,9 @@ import (
 
 	"github.com/OpenListTeam/OpenList/v4/drivers/base"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
 	jsoniter "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 // do others that not defined in Driver interface
@@ -172,10 +172,10 @@ func (d *Pan123) login() error {
 	if err != nil {
 		return err
 	}
-	if utils.Json.Get(res.Body(), "code").ToInt() != 200 {
-		err = fmt.Errorf(utils.Json.Get(res.Body(), "message").ToString())
+	if utils.Json.Get(res.Bytes(), "code").ToInt() != 200 {
+		err = fmt.Errorf(utils.Json.Get(res.Bytes(), "message").ToString())
 	} else {
-		d.AccessToken = utils.Json.Get(res.Body(), "data", "token").ToString()
+		d.AccessToken = utils.Json.Get(res.Bytes(), "data", "token").ToString()
 	}
 	return err
 }
@@ -222,7 +222,7 @@ do:
 	if err != nil {
 		return nil, err
 	}
-	body := res.Body()
+	body := res.Bytes()
 	code := utils.Json.Get(body, "code").ToInt()
 	if code != 0 {
 		if !isRetry && code == 401 {

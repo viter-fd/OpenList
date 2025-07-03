@@ -17,9 +17,9 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/model"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 	"github.com/ProtonMail/go-crypto/openpgp"
-	"github.com/go-resty/resty/v2"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 type Github struct {
@@ -680,7 +680,7 @@ func (d *Github) get(path string) (*Object, error) {
 		return nil, toErr(res)
 	}
 	var resp Object
-	err = utils.Json.Unmarshal(res.Body(), &resp)
+	err = utils.Json.Unmarshal(res.Bytes(), &resp)
 	return &resp, err
 }
 
@@ -780,7 +780,7 @@ func (d *Github) getTree(sha string) (*TreeResp, error) {
 		return nil, toErr(res)
 	}
 	var resp TreeResp
-	if err = utils.Json.Unmarshal(res.Body(), &resp); err != nil {
+	if err = utils.Json.Unmarshal(res.Bytes(), &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
@@ -818,7 +818,7 @@ func (d *Github) newTree(baseSha string, tree []interface{}) (string, error) {
 		return "", toErr(res)
 	}
 	var resp TreeResp
-	if err = utils.Json.Unmarshal(res.Body(), &resp); err != nil {
+	if err = utils.Json.Unmarshal(res.Bytes(), &resp); err != nil {
 		return "", err
 	}
 	return resp.Sha, nil
@@ -847,7 +847,7 @@ func (d *Github) commit(message, treeSha string) error {
 		return toErr(res)
 	}
 	var resp CommitResp
-	if err = utils.Json.Unmarshal(res.Body(), &resp); err != nil {
+	if err = utils.Json.Unmarshal(res.Bytes(), &resp); err != nil {
 		return err
 	}
 
@@ -876,7 +876,7 @@ func (d *Github) getBranchHead() (string, error) {
 		return "", toErr(res)
 	}
 	var resp BranchResp
-	if err = utils.Json.Unmarshal(res.Body(), &resp); err != nil {
+	if err = utils.Json.Unmarshal(res.Bytes(), &resp); err != nil {
 		return "", err
 	}
 	return resp.Commit.Sha, nil
@@ -936,7 +936,7 @@ func (d *Github) getRepo() (*RepoResp, error) {
 		return nil, toErr(res)
 	}
 	var resp RepoResp
-	if err = utils.Json.Unmarshal(res.Body(), &resp); err != nil {
+	if err = utils.Json.Unmarshal(res.Bytes(), &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
@@ -951,7 +951,7 @@ func (d *Github) getAuthenticatedUser() (*UserResp, error) {
 		return nil, toErr(res)
 	}
 	resp := &UserResp{}
-	if err = utils.Json.Unmarshal(res.Body(), resp); err != nil {
+	if err = utils.Json.Unmarshal(res.Bytes(), resp); err != nil {
 		return nil, err
 	}
 	return resp, nil

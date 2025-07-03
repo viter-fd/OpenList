@@ -8,8 +8,8 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/op"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 	"github.com/OpenListTeam/OpenList/v4/server/common"
-	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 func (d *OpenList) login() error {
@@ -50,7 +50,7 @@ func (d *OpenList) request(api, method string, callback base.ReqCallback, retry 
 	if res.StatusCode() >= 400 {
 		return nil, res.StatusCode(), fmt.Errorf("request failed, status: %s", res.Status())
 	}
-	code := utils.Json.Get(res.Body(), "code").ToInt()
+	code := utils.Json.Get(res.Bytes(), "code").ToInt()
 	if code != 200 {
 		if (code == 401 || code == 403) && !utils.IsBool(retry...) {
 			err = d.login()
@@ -59,7 +59,7 @@ func (d *OpenList) request(api, method string, callback base.ReqCallback, retry 
 			}
 			return d.request(api, method, callback, true)
 		}
-		return nil, code, fmt.Errorf("request failed,code: %d, message: %s", code, utils.Json.Get(res.Body(), "message").ToString())
+		return nil, code, fmt.Errorf("request failed,code: %d, message: %s", code, utils.Json.Get(res.Bytes(), "message").ToString())
 	}
-	return res.Body(), 200, nil
+	return res.Bytes(), 200, nil
 }

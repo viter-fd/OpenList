@@ -14,7 +14,7 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 
 	"github.com/OpenListTeam/OpenList/v4/drivers/base"
-	"github.com/go-resty/resty/v2"
+	"resty.dev/v3"
 )
 
 var AndroidAlgorithms = []string{
@@ -100,7 +100,7 @@ func (d *PikPakShare) request(url string, method string, callback base.ReqCallba
 	}
 	switch e.ErrorCode {
 	case 0:
-		return res.Body(), nil
+		return res.Bytes(), nil
 	case 9: // 验证码token过期
 		if err = d.RefreshCaptchaToken(GetAction(method, url), ""); err != nil {
 			return nil, err

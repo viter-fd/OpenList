@@ -17,9 +17,9 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/model"
 	"github.com/OpenListTeam/OpenList/v4/pkg/http_range"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
 	"github.com/golang-jwt/jwt/v4"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 // do others that not defined in Driver interface
@@ -215,7 +215,7 @@ func (d *GoogleDrive) request(url string, method string, callback base.ReqCallba
 		}
 		return nil, fmt.Errorf("%s: %v", e.Error.Message, e.Error.Errors)
 	}
-	return res.Body(), nil
+	return res.Bytes(), nil
 }
 
 func (d *GoogleDrive) getFiles(id string) ([]File, error) {

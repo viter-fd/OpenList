@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/OpenListTeam/OpenList/v4/drivers/base"
-	"github.com/go-resty/resty/v2"
+	"resty.dev/v3"
 )
 
 func (d *ChaoXing) requestDownload(pathname string, method string, callback base.ReqCallback, resp interface{}) ([]byte, error) {
@@ -35,7 +35,7 @@ func (d *ChaoXing) requestDownload(pathname string, method string, callback base
 	if err != nil {
 		return nil, err
 	}
-	return res.Body(), nil
+	return res.Bytes(), nil
 }
 
 func (d *ChaoXing) request(pathname string, method string, callback base.ReqCallback, resp interface{}) ([]byte, error) {
@@ -61,7 +61,7 @@ func (d *ChaoXing) request(pathname string, method string, callback base.ReqCall
 	if err != nil {
 		return nil, err
 	}
-	return res.Body(), nil
+	return res.Bytes(), nil
 }
 
 func (d *ChaoXing) GetFiles(parent string) ([]File, error) {

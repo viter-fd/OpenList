@@ -16,8 +16,8 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/model"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 	"github.com/OpenListTeam/OpenList/v4/server/common"
-	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 type OpenList struct {
@@ -62,7 +62,7 @@ func (d *OpenList) Init(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		allowMounted := utils.Json.Get(res.Body(), "data", conf.AllowMounted).ToString() == "true"
+		allowMounted := utils.Json.Get(res.Bytes(), "data", conf.AllowMounted).ToString() == "true"
 		if !allowMounted {
 			return fmt.Errorf("the site does not allow mounted")
 		}

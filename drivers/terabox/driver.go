@@ -136,7 +136,7 @@ func (d *Terabox) Put(ctx context.Context, dstDir model.Obj, stream model.FileSt
 		return err
 	}
 	var locateupload_resp LocateUploadResp
-	err = utils.Json.Unmarshal(resp.Body(), &locateupload_resp)
+	err = utils.Json.Unmarshal(resp.Bytes(), &locateupload_resp)
 	if err != nil {
 		log.Debugln(resp)
 		return err

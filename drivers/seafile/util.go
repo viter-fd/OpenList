@@ -11,7 +11,7 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 
 	"github.com/OpenListTeam/OpenList/v4/drivers/base"
-	"github.com/go-resty/resty/v2"
+	"resty.dev/v3"
 )
 
 func (d *Seafile) getToken() error {
@@ -68,7 +68,7 @@ func (d *Seafile) request(method string, pathname string, callback base.ReqCallb
 	if res.StatusCode() >= 400 {
 		return nil, fmt.Errorf("request failed: %s", res.String())
 	}
-	return res.Body(), nil
+	return res.Bytes(), nil
 }
 
 func (d *Seafile) getRepoAndPath(fullPath string) (repo *LibraryInfo, path string, err error) {

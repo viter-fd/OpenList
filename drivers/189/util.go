@@ -20,9 +20,9 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/model"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 	myrand "github.com/OpenListTeam/OpenList/v4/pkg/utils/random"
-	"github.com/go-resty/resty/v2"
 	jsoniter "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 // do others that not defined in Driver interface
@@ -81,7 +81,7 @@ import (
 //		// Enter the verification code manually
 //		//err = message.GetMessenger().WaitSend(message.Message{
 //		//	Type:    "image",
-//		//	Content: "data:image/png;base64," + base64.StdEncoding.EncodeToString(imgRes.Body()),
+//		//	Content: "data:image/png;base64," + base64.StdEncoding.EncodeToString(imgRes.Body),
 //		//}, 10)
 //		//if err != nil {
 //		//	return err
@@ -89,15 +89,15 @@ import (
 //		//vCodeRS, err = message.GetMessenger().WaitReceive(30)
 //		// use ocr api
 //		vRes, err := base.RestyClient.R().SetMultipartField(
-//			"image", "validateCode.png", "image/png", bytes.NewReader(imgRes.Body())).
+//			"image", "validateCode.png", "image/png", bytes.NewReader(imgRes.Body)).
 //			Post(setting.GetStr(conf.OcrApi))
 //		if err != nil {
 //			return err
 //		}
-//		if jsoniter.Get(vRes.Body(), "status").ToInt() != 200 {
-//			return errors.New("ocr error:" + jsoniter.Get(vRes.Body(), "msg").ToString())
+//		if jsoniter.Get(vRes.Bytes(), "status").ToInt() != 200 {
+//			return errors.New("ocr error:" + jsoniter.Get(vRes.Bytes(), "msg").ToString())
 //		}
-//		vCodeRS = jsoniter.Get(vRes.Body(), "result").ToString()
+//		vCodeRS = jsoniter.Get(vRes.Bytes(), "result").ToString()
 //		log.Debugln("code: ", vCodeRS)
 //	}
 //	userRsa := RsaEncode([]byte(d.Username), jRsakey, true)
@@ -128,7 +128,7 @@ import (
 //	if err != nil {
 //		return err
 //	}
-//	err = utils.Json.Unmarshal(res.Body(), &loginResp)
+//	err = utils.Json.Unmarshal(res.Bytes(), &loginResp)
 //	if err != nil {
 //		log.Error(err.Error())
 //		return err
@@ -167,10 +167,10 @@ func (d *Cloud189) request(url string, method string, callback base.ReqCallback,
 			return d.request(url, method, callback, resp)
 		}
 	}
-	if jsoniter.Get(res.Body(), "res_code").ToInt() != 0 {
-		err = errors.New(jsoniter.Get(res.Body(), "res_message").ToString())
+	if jsoniter.Get(res.Bytes(), "res_code").ToInt() != 0 {
+		err = errors.New(jsoniter.Get(res.Bytes(), "res_message").ToString())
 	}
-	return res.Body(), err
+	return res.Bytes(), err
 }
 
 func (d *Cloud189) getFiles(fileId string) ([]model.Obj, error) {
@@ -232,7 +232,7 @@ func (d *Cloud189) oldUpload(dstDir model.Obj, file model.FileStreamer) error {
 	if err != nil {
 		return err
 	}
-	if utils.Json.Get(res.Body(), "MD5").ToString() != "" {
+	if utils.Json.Get(res.Bytes(), "MD5").ToString() != "" {
 		return nil
 	}
 	log.Debugf(res.String())
@@ -297,7 +297,7 @@ func (d *Cloud189) uploadRequest(uri string, form map[string]string, resp interf
 	if err != nil {
 		return nil, err
 	}
-	data = res.Body()
+	data = res.Bytes()
 	if utils.Json.Get(data, "code").ToString() != "SUCCESS" {
 		return nil, errors.New(uri + "---" + jsoniter.Get(data, "msg").ToString())
 	}

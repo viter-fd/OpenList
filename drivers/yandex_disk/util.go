@@ -8,7 +8,7 @@ import (
 
 	"github.com/OpenListTeam/OpenList/v4/drivers/base"
 	"github.com/OpenListTeam/OpenList/v4/internal/op"
-	"github.com/go-resty/resty/v2"
+	"resty.dev/v3"
 )
 
 // do others that not defined in Driver interface
@@ -97,7 +97,7 @@ func (d *YandexDisk) request(pathname string, method string, callback base.ReqCa
 		}
 		return nil, errors.New(e.Description)
 	}
-	return res.Body(), nil
+	return res.Bytes(), nil
 }
 
 func (d *YandexDisk) getFiles(path string) ([]File, error) {

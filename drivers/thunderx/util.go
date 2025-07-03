@@ -13,7 +13,7 @@ import (
 
 	"github.com/OpenListTeam/OpenList/v4/drivers/base"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
+	"resty.dev/v3"
 )
 
 const (
@@ -208,12 +208,12 @@ func (c *Common) Request(url, method string, callback base.ReqCallback, resp int
 	}
 
 	var erron ErrResp
-	utils.Json.Unmarshal(res.Body(), &erron)
+	utils.Json.Unmarshal(res.Bytes(), &erron)
 	if erron.IsError() {
 		return nil, &erron
 	}
 
-	return res.Body(), nil
+	return res.Bytes(), nil
 }
 
 // 计算文件Gcid

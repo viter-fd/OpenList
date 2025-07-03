@@ -143,9 +143,7 @@ func (d *MoPan) Link(ctx context.Context, file model.Obj, args model.LinkArgs) (
 	if err != nil {
 		return nil, err
 	}
-	defer func() {
-		_ = res.RawBody().Close()
-	}()
+	defer res.Body.Close()
 	if res.StatusCode() == 302 {
 		data.DownloadUrl = res.Header().Get("location")
 	}

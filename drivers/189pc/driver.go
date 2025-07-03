@@ -13,8 +13,8 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/errs"
 	"github.com/OpenListTeam/OpenList/v4/internal/model"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
+	"resty.dev/v3"
 )
 
 type Cloud189PC struct {
@@ -171,7 +171,7 @@ func (y *Cloud189PC) Link(ctx context.Context, file model.Obj, args model.LinkAr
 	if err != nil {
 		return nil, err
 	}
-	defer res.RawBody().Close()
+	defer res.Body.Close()
 	if res.StatusCode() == 302 {
 		downloadUrl.URL = res.Header().Get("location")
 	}

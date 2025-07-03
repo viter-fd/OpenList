@@ -22,8 +22,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 type Pan123 struct {
@@ -115,7 +115,7 @@ func (d *Pan123) Link(ctx context.Context, file model.Obj, args model.LinkArgs) 
 		if res.StatusCode() == 302 {
 			link.URL = res.Header().Get("location")
 		} else if res.StatusCode() < 300 {
-			link.URL = utils.Json.Get(res.Body(), "data", "redirect_url").ToString()
+			link.URL = utils.Json.Get(res.Bytes(), "data", "redirect_url").ToString()
 		}
 		link.Header = http.Header{
 			"Referer": []string{"https://www.123pan.com/"},

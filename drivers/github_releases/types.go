@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
+	"resty.dev/v3"
 )
 
 type MountPoint struct {
@@ -26,7 +26,7 @@ func (m *MountPoint) RequestRelease(get func(url string) (*resty.Response, error
 	if m.Release == nil || refresh {
 		resp, _ := get("https://api.github.com/repos/" + m.Repo + "/releases/latest")
 		m.Release = new(Release)
-		json.Unmarshal(resp.Body(), m.Release)
+		json.Unmarshal(resp.Bytes(), m.Release)
 	}
 }
 
@@ -39,7 +39,7 @@ func (m *MountPoint) RequestReleases(get func(url string) (*resty.Response, erro
 	if m.Releases == nil || refresh {
 		resp, _ := get("https://api.github.com/repos/" + m.Repo + "/releases")
 		m.Releases = new([]Release)
-		json.Unmarshal(resp.Body(), m.Releases)
+		json.Unmarshal(resp.Bytes(), m.Releases)
 	}
 }
 
@@ -147,7 +147,7 @@ func (m *MountPoint) GetOtherFile(get func(url string) (*resty.Response, error),
 	if m.OtherFile == nil || refresh {
 		resp, _ := get("https://api.github.com/repos/" + m.Repo + "/contents")
 		m.OtherFile = new([]FileInfo)
-		json.Unmarshal(resp.Body(), m.OtherFile)
+		json.Unmarshal(resp.Bytes(), m.OtherFile)
 	}
 
 	files := make([]File, 0)

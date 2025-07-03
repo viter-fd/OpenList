@@ -11,8 +11,8 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/op"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 	"github.com/dustinxie/ecc"
-	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
+	"resty.dev/v3"
 )
 
 func (d *AliDrive) createSession() error {
@@ -134,7 +134,7 @@ func (d *AliDrive) request(url, method string, callback base.ReqCallback, resp i
 	} else if res.IsError() {
 		return nil, errors.New("bad status code " + res.Status()), e
 	}
-	return res.Body(), nil, e
+	return res.Bytes(), nil, e
 }
 
 func (d *AliDrive) getFiles(fileId string) ([]File, error) {

@@ -83,7 +83,7 @@ func (d *Cloud189) newLogin() error {
 	if err != nil {
 		return err
 	}
-	err = utils.Json.Unmarshal(res.Body(), &encryptConf)
+	err = utils.Json.Unmarshal(res.Bytes(), &encryptConf)
 	if err != nil {
 		return err
 	}
@@ -118,9 +118,9 @@ func (d *Cloud189) newLogin() error {
 		return err
 	}
 	log.Debugf("189 login resp body: %s", res.String())
-	loginResult := utils.Json.Get(res.Body(), "result").ToInt()
+	loginResult := utils.Json.Get(res.Bytes(), "result").ToInt()
 	if loginResult != 0 {
-		return errors.New(utils.Json.Get(res.Body(), "msg").ToString())
+		return errors.New(utils.Json.Get(res.Bytes(), "msg").ToString())
 	}
 	return nil
 }

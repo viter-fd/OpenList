@@ -9,8 +9,8 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/model"
 	"github.com/OpenListTeam/OpenList/v4/internal/op"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
 	"github.com/OpenListTeam/wopan-sdk-go"
+	"resty.dev/v3"
 )
 
 type Wopan struct {
@@ -152,10 +152,14 @@ func (d *Wopan) Remove(ctx context.Context, obj model.Obj) error {
 }
 
 func (d *Wopan) Put(ctx context.Context, dstDir model.Obj, stream model.FileStreamer, up driver.UpdateProgress) error {
-	_, err := d.client.Upload2C(d.getSpaceType(), wopan.Upload2CFile{
+	file, err := stream.CacheFullInTempFile()
+	if err != nil {
+		return err
+	}
+	_, err = d.client.Upload2C(d.getSpaceType(), wopan.Upload2CFile{
 		Name:        stream.GetName(),
 		Size:        stream.GetSize(),
-		Content:     driver.NewLimitedUploadStream(ctx, stream),
+		Content:     driver.NewLimitedUploadFile(ctx, file),
 		ContentType: stream.GetMimetype(),
 	}, dstDir.GetID(), d.FamilyID, wopan.Upload2COption{
 		OnProgress: func(current, total int64) {

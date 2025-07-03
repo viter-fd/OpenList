@@ -13,7 +13,7 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/pkg/http_range"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 	"github.com/avast/retry-go"
-	"github.com/go-resty/resty/v2"
+	"resty.dev/v3"
 )
 
 func (d *Open123) create(parentFileID int64, filename string, etag string, size int64, duplicate int, containDir bool) (*UploadCreateResp, error) {

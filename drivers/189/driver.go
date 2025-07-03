@@ -9,8 +9,8 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/driver"
 	"github.com/OpenListTeam/OpenList/v4/internal/model"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 type Cloud189 struct {
@@ -52,7 +52,7 @@ func (d *Cloud189) Link(ctx context.Context, file model.Obj, args model.LinkArgs
 	if err != nil {
 		return nil, err
 	}
-	client := resty.NewWithClient(d.client.GetClient()).SetRedirectPolicy(
+	client := resty.NewWithClient(d.client.Client()).SetRedirectPolicy(
 		resty.RedirectPolicyFunc(func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		}))

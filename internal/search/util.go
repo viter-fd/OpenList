@@ -53,7 +53,7 @@ func updateIgnorePaths(customIgnorePaths string) {
 					res, err := base.RestyClient.R().Get(url)
 					if err == nil {
 						log.Debugf("allow_indexed body: %+v", res.String())
-						allowIndexed = utils.Json.Get(res.Body(), "data", conf.AllowIndexed).ToString() == "true"
+						allowIndexed = utils.Json.Get(res.Bytes(), "data", conf.AllowIndexed).ToString() == "true"
 						v3Visited[addition.Address] = allowIndexed
 					}
 				}

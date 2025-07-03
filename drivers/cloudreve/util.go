@@ -20,8 +20,8 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/setting"
 	"github.com/OpenListTeam/OpenList/v4/pkg/cookie"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
 	jsoniter "github.com/json-iterator/go"
+	"resty.dev/v3"
 )
 
 // do others that not defined in Driver interface
@@ -134,10 +134,10 @@ func (d *Cloudreve) doLogin(needCaptcha bool) error {
 		if err != nil {
 			return err
 		}
-		if jsoniter.Get(vRes.Body(), "status").ToInt() != 200 {
-			return errors.New("ocr error:" + jsoniter.Get(vRes.Body(), "msg").ToString())
+		if jsoniter.Get(vRes.Bytes(), "status").ToInt() != 200 {
+			return errors.New("ocr error:" + jsoniter.Get(vRes.Bytes(), "msg").ToString())
 		}
-		captchaCode = jsoniter.Get(vRes.Body(), "result").ToString()
+		captchaCode = jsoniter.Get(vRes.Bytes(), "result").ToString()
 	}
 	var resp Resp
 	err = d.request(http.MethodPost, loginPath, func(req *resty.Request) {
@@ -206,7 +206,7 @@ func (d *Cloudreve) upLocal(ctx context.Context, stream model.FileStreamer, u Up
 			req.SetHeader("Content-Length", strconv.FormatInt(byteSize, 10))
 			req.SetHeader("User-Agent", d.getUA())
 			req.SetBody(driver.NewLimitedUploadStream(ctx, bytes.NewReader(byteData)))
-			req.AddRetryCondition(func(r *resty.Response, err error) bool {
+			req.AddRetryConditions(func(r *resty.Response, err error) bool {
 				if err != nil {
 					return true
 				}
@@ -214,7 +214,7 @@ func (d *Cloudreve) upLocal(ctx context.Context, stream model.FileStreamer, u Up
 					return true
 				}
 				var retryResp Resp
-				jErr := base.RestyClient.JSONUnmarshal(r.Body(), &retryResp)
+				jErr := utils.Json.Unmarshal(r.Bytes(), &retryResp)
 				if jErr != nil {
 					return true
 				}

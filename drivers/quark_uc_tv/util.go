@@ -13,7 +13,7 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/drivers/base"
 	"github.com/OpenListTeam/OpenList/v4/internal/op"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
+	"resty.dev/v3"
 )
 
 const (
@@ -82,7 +82,7 @@ func (d *QuarkUCTV) request(ctx context.Context, pathname string, method string,
 	if e.Status >= 400 || e.Errno != 0 {
 		return nil, errors.New(e.ErrorInfo)
 	}
-	return res.Body(), nil
+	return res.Bytes(), nil
 }
 
 func (d *QuarkUCTV) getLoginCode(ctx context.Context) (string, error) {

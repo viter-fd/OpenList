@@ -8,8 +8,8 @@ import (
 
 	"github.com/OpenListTeam/OpenList/v4/drivers/base"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 // do others that not defined in Driver interface
@@ -31,9 +31,9 @@ func (d *MediaTrack) request(url string, method string, callback base.ReqCallbac
 		return nil, errors.New(e.Message)
 	}
 	if resp != nil {
-		err = utils.Json.Unmarshal(res.Body(), resp)
+		err = utils.Json.Unmarshal(res.Bytes(), resp)
 	}
-	return res.Body(), err
+	return res.Bytes(), err
 }
 
 func (d *MediaTrack) getFiles(parentId string) ([]File, error) {

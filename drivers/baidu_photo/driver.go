@@ -21,7 +21,7 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/pkg/errgroup"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 	"github.com/avast/retry-go"
-	"github.com/go-resty/resty/v2"
+	"resty.dev/v3"
 )
 
 type BaiduPhoto struct {

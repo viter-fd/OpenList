@@ -13,8 +13,8 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/errs"
 	"github.com/OpenListTeam/OpenList/v4/internal/model"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
+	"resty.dev/v3"
 )
 
 type Doubao struct {

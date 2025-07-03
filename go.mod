@@ -10,7 +10,7 @@ require (
 	github.com/OpenListTeam/sftpd-openlist v1.0.1
 	github.com/OpenListTeam/tache v0.2.0
 	github.com/OpenListTeam/times v0.1.0
-	github.com/OpenListTeam/wopan-sdk-go v0.1.5
+	github.com/OpenListTeam/wopan-sdk-go v0.2.2
 	github.com/ProtonMail/go-crypto v1.0.0
 	github.com/SheltonZhu/115driver v1.0.34
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
@@ -33,7 +33,6 @@ require (
 	github.com/foxxorcat/weiyun-sdk-go v0.1.3
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.10.0
-	github.com/go-resty/resty/v2 v2.14.0
 	github.com/go-webauthn/webauthn v0.11.1
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.6.0
@@ -81,6 +80,7 @@ require (
 require (
 	cloud.google.com/go/compute/metadata v0.7.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.10.0 // indirect
+	github.com/go-resty/resty/v2 v2.14.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/mikelolasagasti/xz v1.0.1 // indirect
 	github.com/minio/minlz v1.0.0 // indirect
@@ -120,7 +120,7 @@ require (
 	github.com/ulikunitz/xz v0.5.12 // indirect
 	github.com/yuin/goldmark v1.7.8
 	go4.org v0.0.0-20230225012048-214862532bf5
-	resty.dev/v3 v3.0.0-beta.2 // indirect
+	resty.dev/v3 v3.0.0-beta.3
 )
 
 require (

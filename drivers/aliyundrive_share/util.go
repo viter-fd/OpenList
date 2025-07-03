@@ -90,7 +90,7 @@ func (d *AliyundriveShare) request(url, method string, callback base.ReqCallback
 			return nil, errors.New(e.Code + ": " + e.Message)
 		}
 	}
-	return resp.Body(), nil
+	return resp.Bytes(), nil
 }
 
 func (d *AliyundriveShare) getFiles(fileId string) ([]File, error) {

@@ -13,8 +13,8 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/model"
 	"github.com/OpenListTeam/OpenList/v4/internal/op"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 // do others that not defined in Driver interface
@@ -73,7 +73,7 @@ func (d *AliyundriveOpen) _refreshToken() (string, string, error) {
 	if e.Code != "" {
 		return "", "", fmt.Errorf("failed to refresh token: %s", e.Message)
 	}
-	refresh, access := utils.Json.Get(res.Body(), "refresh_token").ToString(), utils.Json.Get(res.Body(), "access_token").ToString()
+	refresh, access := utils.Json.Get(res.Bytes(), "refresh_token").ToString(), utils.Json.Get(res.Bytes(), "access_token").ToString()
 	if refresh == "" {
 		return "", "", fmt.Errorf("failed to refresh token: refresh token is empty, resp: %s", res.String())
 	}
@@ -160,7 +160,7 @@ func (d *AliyundriveOpen) requestReturnErrResp(uri, method string, callback base
 		}
 		return nil, fmt.Errorf("%s:%s", e.Code, e.Message), &e
 	}
-	return res.Body(), nil, nil
+	return res.Bytes(), nil, nil
 }
 
 func (d *AliyundriveOpen) list(ctx context.Context, data base.Json) (*Files, error) {

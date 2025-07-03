@@ -7,7 +7,7 @@ import (
 
 	"github.com/OpenListTeam/OpenList/v4/internal/conf"
 	"github.com/OpenListTeam/OpenList/v4/internal/net"
-	"github.com/go-resty/resty/v2"
+	"resty.dev/v3"
 )
 
 var (
@@ -34,7 +34,6 @@ func NewRestyClient() *resty.Client {
 	client := resty.New().
 		SetHeader("user-agent", UserAgent).
 		SetRetryCount(3).
-		SetRetryResetReaders(true).
 		SetTimeout(DefaultTimeout).
 		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: conf.Conf.TlsInsecureSkipVerify})
 	return client

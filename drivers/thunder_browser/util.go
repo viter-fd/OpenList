@@ -14,7 +14,7 @@ import (
 
 	"github.com/OpenListTeam/OpenList/v4/drivers/base"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
+	"resty.dev/v3"
 )
 
 const (
@@ -227,7 +227,7 @@ func (c *Common) Request(url, method string, callback base.ReqCallback, resp int
 	}
 
 	var erron ErrResp
-	utils.Json.Unmarshal(res.Body(), &erron)
+	utils.Json.Unmarshal(res.Bytes(), &erron)
 	if erron.IsError() {
 		// review_panel 表示需要短信验证码进行验证
 		if erron.ErrorMsg == "review_panel" {
@@ -237,7 +237,7 @@ func (c *Common) Request(url, method string, callback base.ReqCallback, resp int
 		return nil, &erron
 	}
 
-	return res.Body(), nil
+	return res.Bytes(), nil
 }
 
 // 获取验证所需内容
@@ -245,7 +245,7 @@ func (c *Common) getReviewData(res *resty.Response) error {
 	var reviewResp LoginReviewResp
 	var reviewData ReviewData
 
-	if err := utils.Json.Unmarshal(res.Body(), &reviewResp); err != nil {
+	if err := utils.Json.Unmarshal(res.Bytes(), &reviewResp); err != nil {
 		return err
 	}
 

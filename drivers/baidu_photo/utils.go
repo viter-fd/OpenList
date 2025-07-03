@@ -12,7 +12,7 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/drivers/base"
 	"github.com/OpenListTeam/OpenList/v4/internal/model"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
+	"resty.dev/v3"
 )
 
 const (
@@ -38,7 +38,7 @@ func (d *BaiduPhoto) Request(client *resty.Client, furl string, method string, c
 		return nil, err
 	}
 
-	erron := utils.Json.Get(res.Body(), "errno").ToInt()
+	erron := utils.Json.Get(res.Bytes(), "errno").ToInt()
 	switch erron {
 	case 0:
 		break
@@ -63,7 +63,7 @@ func (d *BaiduPhoto) Request(client *resty.Client, furl string, method string, c
 //	if err != nil {
 //		return nil, err
 //	}
-//	return res.Body(), nil
+//	return res.Bytes(), nil
 //}
 
 // func (d *BaiduPhoto) refreshToken() error {

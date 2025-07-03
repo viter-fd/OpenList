@@ -17,9 +17,9 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/op"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils/random"
-	"github.com/go-resty/resty/v2"
 	jsoniter "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 // do others that not defined in Driver interface
@@ -89,7 +89,7 @@ func (d *Yun139) refreshToken() error {
 	var resp RefreshTokenResp
 	reqBody := "<root><token>" + splits[2] + "</token><account>" + splits[1] + "</account><clienttype>656</clienttype></root>"
 	_, err = base.RestyClient.R().
-		ForceContentType("application/xml").
+		SetForceResponseContentType("application/xml").
 		SetBody(reqBody).
 		SetResult(&resp).
 		Post(url)
@@ -150,12 +150,12 @@ func (d *Yun139) request(pathname string, method string, callback base.ReqCallba
 		return nil, errors.New(e.Message)
 	}
 	if resp != nil {
-		err = utils.Json.Unmarshal(res.Body(), resp)
+		err = utils.Json.Unmarshal(res.Bytes(), resp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	return res.Body(), nil
+	return res.Bytes(), nil
 }
 
 func (d *Yun139) requestRoute(data interface{}, resp interface{}) ([]byte, error) {
@@ -207,12 +207,12 @@ func (d *Yun139) requestRoute(data interface{}, resp interface{}) ([]byte, error
 		return nil, errors.New(e.Message)
 	}
 	if resp != nil {
-		err = utils.Json.Unmarshal(res.Body(), resp)
+		err = utils.Json.Unmarshal(res.Bytes(), resp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	return res.Body(), nil
+	return res.Bytes(), nil
 }
 
 func (d *Yun139) post(pathname string, data interface{}, resp interface{}) ([]byte, error) {
@@ -500,12 +500,12 @@ func (d *Yun139) personalRequest(pathname string, method string, callback base.R
 		return nil, errors.New(e.Message)
 	}
 	if resp != nil {
-		err = utils.Json.Unmarshal(res.Body(), resp)
+		err = utils.Json.Unmarshal(res.Bytes(), resp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	return res.Body(), nil
+	return res.Bytes(), nil
 }
 func (d *Yun139) personalPost(pathname string, data interface{}, resp interface{}) ([]byte, error) {
 	return d.personalRequest(pathname, http.MethodPost, func(req *resty.Request) {

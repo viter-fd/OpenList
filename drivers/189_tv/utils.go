@@ -5,12 +5,13 @@ import (
 	"encoding/base64"
 	"encoding/xml"
 	"fmt"
-	"github.com/skip2/go-qrcode"
 	"io"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/skip2/go-qrcode"
 
 	"github.com/OpenListTeam/OpenList/v4/drivers/base"
 	"github.com/OpenListTeam/OpenList/v4/internal/driver"
@@ -18,10 +19,10 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/op"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
+	"resty.dev/v3"
 )
 
 const (
@@ -96,7 +97,7 @@ func (y *Cloud189TV) request(url, method string, callback base.ReqCallback, para
 	if erron.HasError() {
 		return nil, &erron
 	}
-	return res.Body(), nil
+	return res.Bytes(), nil
 }
 
 func (y *Cloud189TV) get(url string, callback base.ReqCallback, resp interface{}, isFamily ...bool) ([]byte, error) {

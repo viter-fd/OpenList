@@ -14,8 +14,8 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/op"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 	hash_extend "github.com/OpenListTeam/OpenList/v4/pkg/utils/hash"
-	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 type PikPak struct {

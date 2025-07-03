@@ -20,7 +20,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/go-resty/resty/v2"
+	"resty.dev/v3"
 )
 
 type ThunderBrowser struct {

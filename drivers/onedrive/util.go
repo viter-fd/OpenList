@@ -16,8 +16,8 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/model"
 	"github.com/OpenListTeam/OpenList/v4/internal/op"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	"github.com/go-resty/resty/v2"
 	jsoniter "github.com/json-iterator/go"
+	"resty.dev/v3"
 )
 
 var onedriveHostMap = map[string]Host{
@@ -157,7 +157,7 @@ func (d *Onedrive) Request(url string, method string, callback base.ReqCallback,
 		}
 		return nil, errors.New(e.Error.Message)
 	}
-	return res.Body(), nil
+	return res.Bytes(), nil
 }
 
 func (d *Onedrive) getFiles(path string) ([]File, error) {

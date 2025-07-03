@@ -8,19 +8,20 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/OpenListTeam/OpenList/v4/pkg/http_range"
-	"github.com/google/uuid"
 	"io"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/OpenListTeam/OpenList/v4/pkg/http_range"
+	"github.com/google/uuid"
+
 	"github.com/OpenListTeam/OpenList/v4/drivers/base"
 	"github.com/OpenListTeam/OpenList/v4/internal/model"
 	"github.com/OpenListTeam/OpenList/v4/internal/op"
-	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"resty.dev/v3"
 )
 
 func (d *QuarkOpen) request(ctx context.Context, pathname string, method string, callback base.ReqCallback, resp interface{}, manualSign ...*ManualSign) ([]byte, error) {
@@ -79,7 +80,7 @@ func (d *QuarkOpen) request(ctx context.Context, pathname string, method string,
 		return nil, errors.New(e.ErrorInfo)
 	}
 
-	return res.Body(), nil
+	return res.Bytes(), nil
 }
 
 func (d *QuarkOpen) GetFiles(ctx context.Context, parent string) ([]File, error) {

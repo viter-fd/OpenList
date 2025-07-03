@@ -62,7 +62,7 @@ func (d *AliDrive) refreshToken() error {
 	var resp base.TokenResp
 	var e RespErr
 	_, err := base.RestyClient.R().
-		//ForceContentType("application/json").
+		//SetForceResponseContentType("application/json").
 		SetBody(base.Json{"refresh_token": d.RefreshToken, "grant_type": "refresh_token"}).
 		SetResult(&resp).
 		SetError(&e).

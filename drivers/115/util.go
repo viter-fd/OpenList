@@ -24,9 +24,9 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 
-	cipher "github.com/SheltonZhu/115driver/pkg/crypto/ec115"
-	crypto "github.com/SheltonZhu/115driver/pkg/crypto/m115"
-	driver115 "github.com/SheltonZhu/115driver/pkg/driver"
+	cipher "github.com/j2rong4cn/115driver/pkg/crypto/ec115"
+	crypto "github.com/j2rong4cn/115driver/pkg/crypto/m115"
+	driver115 "github.com/j2rong4cn/115driver/pkg/driver"
 	"github.com/pkg/errors"
 )
 
@@ -88,7 +88,7 @@ func (d *Pan115) getNewFileByPickCode(pickCode string) (*FileObj, error) {
 	result := driver115.GetFileInfoResponse{}
 	req := d.client.NewRequest().
 		SetQueryParam("pick_code", pickCode).
-		ForceContentType("application/json;charset=UTF-8").
+		SetForceResponseContentType("application/json;charset=UTF-8").
 		SetResult(&result)
 	resp, err := req.Get(driver115.ApiFileInfo)
 	if err := driver115.CheckErr(err, &result, resp); err != nil {
@@ -125,7 +125,7 @@ func (d *Pan115) DownloadWithUA(pickCode, ua string) (*driver115.DownloadInfo, e
 	req.Header.Set("Cookie", d.Cookie)
 	req.Header.Set("User-Agent", ua)
 
-	resp, err := d.client.Client.GetClient().Do(req)
+	resp, err := d.client.Client.Client().Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -227,7 +227,7 @@ func (d *Pan115) rapidUpload(fileSize int64, fileName, dirID, preID, fileID stri
 		if err != nil {
 			return nil, err
 		}
-		data := resp.RawBody()
+		data := resp.Body
 		defer data.Close()
 		if bodyBytes, err = io.ReadAll(data); err != nil {
 			return nil, err

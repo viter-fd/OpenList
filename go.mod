@@ -12,7 +12,6 @@ require (
 	github.com/OpenListTeam/times v0.1.0
 	github.com/OpenListTeam/wopan-sdk-go v0.2.2
 	github.com/ProtonMail/go-crypto v1.0.0
-	github.com/SheltonZhu/115driver v1.0.34
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/aws/aws-sdk-go v1.55.5
@@ -41,6 +40,7 @@ require (
 	github.com/hirochachacha/go-smb2 v1.1.0
 	github.com/ipfs/go-ipfs-api v0.7.0
 	github.com/itsHenry35/gofakes3 v0.0.8
+	github.com/j2rong4cn/115driver v1.1.2
 	github.com/jlaffaye/ftp v0.2.0
 	github.com/json-iterator/go v1.1.12
 	github.com/kdomanski/iso9660 v0.4.0

@@ -49,7 +49,7 @@ func (d *Dropbox) refreshToken() error {
 	url := d.base + "/oauth2/token"
 	var tokenResp TokenResp
 	resp, err := base.RestyClient.R().
-		//ForceContentType("application/x-www-form-urlencoded").
+		//SetForceResponseContentType("application/x-www-form-urlencoded").
 		//SetBasicAuth(d.ClientID, d.ClientSecret).
 		SetFormData(map[string]string{
 			"grant_type":    "refresh_token",

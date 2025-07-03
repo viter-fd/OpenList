@@ -56,7 +56,7 @@ func (d *AliyundriveOpen) _refreshToken() (string, string, error) {
 	//var resp base.TokenResp
 	var e ErrResp
 	res, err := base.RestyClient.R().
-		//ForceContentType("application/json").
+		//SetForceResponseContentType("application/json").
 		SetBody(base.Json{
 			"client_id":     d.ClientID,
 			"client_secret": d.ClientSecret,

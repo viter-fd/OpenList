@@ -10,7 +10,7 @@ import (
 	streamPkg "github.com/OpenListTeam/OpenList/v4/internal/stream"
 	"github.com/OpenListTeam/OpenList/v4/pkg/http_range"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
-	driver115 "github.com/SheltonZhu/115driver/pkg/driver"
+	driver115 "github.com/j2rong4cn/115driver/pkg/driver"
 	"github.com/pkg/errors"
 	"golang.org/x/time/rate"
 )
@@ -93,7 +93,7 @@ func (d *Pan115) MakeDir(ctx context.Context, parentDir model.Obj, dirName strin
 	req := d.client.NewRequest().
 		SetFormData(form).
 		SetResult(&result).
-		ForceContentType("application/json;charset=UTF-8")
+		SetForceResponseContentType("application/json;charset=UTF-8")
 
 	resp, err := req.Post(driver115.ApiDirAdd)
 

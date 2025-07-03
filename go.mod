@@ -28,8 +28,8 @@ require (
 	github.com/dlclark/regexp2 v1.11.4
 	github.com/dustinxie/ecc v0.0.0-20210511000915-959544187564
 	github.com/fclairamb/ftpserverlib v0.26.1-0.20250615212502-7accbe1c7aad
-	github.com/foxxorcat/mopan-sdk-go v0.1.6
-	github.com/foxxorcat/weiyun-sdk-go v0.1.3
+	github.com/foxxorcat/mopan-sdk-go v1.0.0
+	github.com/foxxorcat/weiyun-sdk-go v1.0.0
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-webauthn/webauthn v0.11.1
@@ -80,7 +80,6 @@ require (
 require (
 	cloud.google.com/go/compute/metadata v0.7.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.10.0 // indirect
-	github.com/go-resty/resty/v2 v2.14.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/mikelolasagasti/xz v1.0.1 // indirect
 	github.com/minio/minlz v1.0.0 // indirect

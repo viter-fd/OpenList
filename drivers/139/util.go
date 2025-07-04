@@ -159,20 +159,15 @@ func (d *Yun139) request(pathname string, method string, callback base.ReqCallba
 }
 
 func (d *Yun139) requestRoute(data interface{}, resp interface{}) ([]byte, error) {
+	body, err := utils.Json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
 	url := "https://user-njs.yun.139.com/user/route/qryRoutePolicy"
 	req := base.RestyClient.R()
 	randStr := random.String(16)
 	ts := time.Now().Format("2006-01-02 15:04:05")
-	callback := func(req *resty.Request) {
-		req.SetBody(data)
-	}
-	if callback != nil {
-		callback(req)
-	}
-	body, err := utils.Json.Marshal(req.Body)
-	if err != nil {
-		return nil, err
-	}
+	req.SetBody(data)
 	sign := calSign(string(body), ts, randStr)
 	svcType := "1"
 	if d.isFamily() {
@@ -199,20 +194,24 @@ func (d *Yun139) requestRoute(data interface{}, resp interface{}) ([]byte, error
 		"Inner-Hcy-Router-Https": "1",
 	})
 
-	var e BaseResp
-	req.SetResult(&e)
 	res, err := req.Execute(http.MethodPost, url)
+	if err != nil {
+		return nil, err
+	}
 	log.Debugln(res.String())
+	var e BaseResp
+	err = utils.Json.Unmarshal(res.Bytes(), &e)
+	if err != nil {
+		return nil, err
+	}
 	if !e.Success {
 		return nil, errors.New(e.Message)
 	}
-	if resp != nil {
-		err = utils.Json.Unmarshal(res.Bytes(), resp)
-		if err != nil {
-			return nil, err
-		}
+	err = utils.Json.Unmarshal(res.Bytes(), resp)
+	if err != nil {
+		return nil, err
 	}
-	return res.Bytes(), nil
+	return res.Bytes(), err
 }
 
 func (d *Yun139) post(pathname string, data interface{}, resp interface{}) ([]byte, error) {

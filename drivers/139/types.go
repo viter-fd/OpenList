@@ -286,10 +286,8 @@ type PersonalUploadUrlResp struct {
 }
 
 type QueryRoutePolicyResp struct {
-	Success bool   `json:"success"`
-	Code    string `json:"code"`
-	Message string `json:"message"`
-	Data    struct {
+	BaseResp
+	Data struct {
 		RoutePolicyList []struct {
 			SiteID      string `json:"siteID"`
 			SiteCode    string `json:"siteCode"`

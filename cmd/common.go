@@ -14,6 +14,7 @@ func Init(ctx context.Context) {
 	}
 	initLogrus()
 	bootstrap.InitConfig()
+	bootstrap.InitDriverPlugins()
 }
 
 func Release() {

@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package driver;
+option go_package = "./driver";
+
+message Config {
+  string name = 1;
+  string version = 2;
+  string default_root = 3;
+}

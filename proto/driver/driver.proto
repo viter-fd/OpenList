@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package driver;
+option go_package = "./driver";
+
+import "google/protobuf/empty.proto";
+import "proto/driver/config.proto";
+
+service Driver {
+  rpc Config(google.protobuf.Empty) returns (driver.Config);
+}

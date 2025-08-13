@@ -1,7 +1,9 @@
 package server
 
 import (
+	"github.com/OpenListTeam/OpenList/v5/cmd/flags"
 	"github.com/OpenListTeam/OpenList/v5/internal/conf"
+	"github.com/OpenListTeam/OpenList/v5/server/handles"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +21,9 @@ func Init(e *gin.Engine) {
 	g.Any("/ping", func(c *gin.Context) {
 		c.String(200, "pong")
 	})
+	if flags.Dev {
+		g.POST("/plugin/register", handles.PluginRegister)
+	}
 }
 
 func Cors(r *gin.Engine) {

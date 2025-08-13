@@ -1,18 +1,27 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/OpenListTeam/OpenList/v5/cmd/flags"
 	"github.com/OpenListTeam/OpenList/v5/internal/bootstrap"
 	"github.com/sirupsen/logrus"
 )
 
-func Init() {
-	InitLogrus()
+func Init(ctx context.Context) {
+	if flags.Dev {
+		flags.Debug = true
+	}
+	initLogrus()
 	bootstrap.InitConfig()
 }
 
+func Release() {
+
+}
+
 func initLog(l *logrus.Logger) {
-	if flags.Debug || flags.Dev {
+	if flags.Debug {
 		l.SetLevel(logrus.DebugLevel)
 		l.SetReportCaller(true)
 	} else {
@@ -20,7 +29,7 @@ func initLog(l *logrus.Logger) {
 		l.SetReportCaller(false)
 	}
 }
-func InitLogrus() {
+func initLogrus() {
 	formatter := logrus.TextFormatter{
 		ForceColors:               true,
 		EnvironmentOverrideColors: true,

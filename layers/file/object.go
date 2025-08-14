@@ -35,8 +35,8 @@ type UserFileObject struct {
 	// fileMask =================
 	// 占用：000000 0 000 000 000
 	// 含义：ABCDEF 1 421 421 421
-	// A-is隐藏 B-is目录 C-is加密
-	// D-is分卷 E-is压缩 F-is只读
+	// A-加密 B-前端解密 C-自解密
+	// D-is分卷 E-is压缩 F-is隐藏
 	// encrypts =================
 	// 占用位：0000000000 00 0000
 	// 含义为：分卷数量 压缩 加密
@@ -47,6 +47,7 @@ type PermissionFile struct {
 
 type LinkFileObject struct {
 	download []string // 下载链接
+	usrAgent []string // 用户代理
 }
 
 type ListFileOption struct {
@@ -58,6 +59,12 @@ type FindFileOption struct {
 type KillFileOption struct {
 }
 type MakeFileOption struct {
+}
+type DownloadOption struct {
+	downType int8 // 下载类型
+
+}
+type UploaderOption struct {
 }
 type BackFileAction struct {
 	success bool   // 是否成功

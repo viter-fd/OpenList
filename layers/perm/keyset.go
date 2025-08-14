@@ -1,4 +1,4 @@
-package keys
+package perm
 
 type UserKeys struct {
 	uuid    string   // 密钥UUID

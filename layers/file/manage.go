@@ -35,3 +35,14 @@ type UserFileServer interface {
 	// DelShare 删除分享 =======================================================================
 	DelShare(ctx context.Context, path []string, opt *NewShareAction) ([]*BackFileAction, error)
 }
+
+func ListFile(ctx context.Context, path []string, opt *ListFileOption) ([]*UserFileObject, error) {
+	originList := make([]*HostFileObject, 0)
+	serverList := make([]*UserFileObject, 0)
+	for _, fileItem := range originList {
+		serverList = append(serverList, &UserFileObject{
+			HostFileObject: *fileItem,
+		})
+	}
+	return serverList, nil
+}

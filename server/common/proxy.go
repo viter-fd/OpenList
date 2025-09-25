@@ -19,7 +19,7 @@ import (
 
 func Proxy(w http.ResponseWriter, r *http.Request, link *model.Link, file model.Obj) error {
 
-	// get query param "inline_preview" if is true
+	// check if query param "inline_preview" is true
 	inlinePreview := r.URL.Query().Get("inline_preview") == "true"
 
 	if link.MFile != nil {

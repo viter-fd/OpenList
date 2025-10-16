@@ -46,7 +46,11 @@ func InitConfig() {
 	} else {
 		// if relative, resolve relative to working directory
 		if !filepath.IsAbs(configPath) {
-			configPath = filepath.Join(pwd, configPath)
+			if absPath, err := filepath.Abs(configPath); err == nil {
+				configPath = absPath
+			} else {
+				configPath = filepath.Join(pwd, configPath)
+			}
 		}
 	}
 	configPath = filepath.Clean(configPath)

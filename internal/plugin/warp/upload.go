@@ -3,6 +3,7 @@ package plugin_warp
 import (
 	"github.com/OpenListTeam/OpenList/v4/internal/driver"
 	"github.com/OpenListTeam/OpenList/v4/internal/model"
+	"github.com/OpenListTeam/OpenList/v4/internal/stream"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 	hash_extend "github.com/OpenListTeam/OpenList/v4/pkg/utils/hash"
 	witgo "github.com/OpenListTeam/wazero-wasip2/wit-go"
@@ -21,6 +22,13 @@ type UploadReadableType struct {
 	model.FileStreamer
 	StreamConsume  bool
 	UpdateProgress driver.UpdateProgress
+	SectionReader  *StreamSectionReader
+}
+
+type StreamSectionReader struct {
+	stream.StreamSectionReaderIF
+	Offset     int64
+	CunketSize int64
 }
 
 type UploadReadableManager = witgo.ResourceManager[*UploadReadableType]

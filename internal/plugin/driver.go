@@ -369,61 +369,54 @@ func (d *WasmDriver) Link(ctx context.Context, file model.Obj, args model.LinkAr
 	if result.Ok.Resource.RangeStream != nil {
 		streamManager := d.plugin.exports.StreamManager()
 		return &model.Link{
-			RangeReader: &model.FileRangeReader{
-				RangeReaderIF: stream.RateLimitRangeReaderFunc(func(ctx context.Context, httpRange http_range.Range) (io.ReadCloser, error) {
-					r, w := io.Pipe()
-					streamHandle := streamManager.Add(manager_io.NewAsyncStreamForWriter(w))
-					ctxHandle := d.plugin.exports.ContextManager().Add(ctx)
+			RangeReader: stream.RateLimitRangeReaderFunc(func(ctx context.Context, httpRange http_range.Range) (io.ReadCloser, error) {
+				r, w := io.Pipe()
+				streamHandle := streamManager.Add(manager_io.NewAsyncStreamForWriter(w))
+				ctxHandle := d.plugin.exports.ContextManager().Add(ctx)
 
-					type RangeSpec struct {
-						Offset uint64
-						Size   witgo.Option[uint64]
-						Stream io_v_0_2.OutputStream
-					}
+				type RangeSpec struct {
+					Offset uint64
+					Size   witgo.Option[uint64]
+					Stream io_v_0_2.OutputStream
+				}
 
-					var size = witgo.None[uint64]()
-					if httpRange.Length >= 0 {
-						size = witgo.Some(uint64(httpRange.Length))
-					}
-					var result witgo.Result[witgo.Unit, plugin_warp.ErrCode]
-					param := struct {
-						Driver    uint32
-						Handle    plugin_warp.Context
-						Obj       *plugin_warp.Object
-						LinkArgs  plugin_warp.LinkArgs
-						RangeSpec RangeSpec
-					}{d.handle, ctxHandle, obj, plugin_warp.LinkArgs{IP: args.IP, Header: headersHandle}, RangeSpec{Offset: uint64(httpRange.Start), Size: size, Stream: streamHandle}}
+				var size = witgo.None[uint64]()
+				if httpRange.Length >= 0 {
+					size = witgo.Some(uint64(httpRange.Length))
+				}
+				var result witgo.Result[witgo.Unit, plugin_warp.ErrCode]
+				param := struct {
+					Driver    uint32
+					Handle    plugin_warp.Context
+					Obj       *plugin_warp.Object
+					LinkArgs  plugin_warp.LinkArgs
+					RangeSpec RangeSpec
+				}{d.handle, ctxHandle, obj, plugin_warp.LinkArgs{IP: args.IP, Header: headersHandle}, RangeSpec{Offset: uint64(httpRange.Start), Size: size, Stream: streamHandle}}
 
-					go func() {
-						close := func(err error) {
-							d.plugin.exports.ContextManager().Remove(ctxHandle)
-							streamManager.Remove(streamHandle)
-							w.CloseWithError(err)
-						}
-						if err := d.plugin.guest.Call(ctx, PluginPrefix+"[method]driver.link-range", &result, param); err != nil {
-							if errors.Is(err, witgo.ErrNotExportFunc) {
-								close(errs.NotImplement)
-								return
-							}
-							// 这里就不返回错误了,避免大量栈数据
-							log.Errorln(err)
-							close(err)
+				go func() {
+					if err := d.plugin.guest.Call(ctx, PluginPrefix+"[method]driver.link-range", &result, param); err != nil {
+						if errors.Is(err, witgo.ErrNotExportFunc) {
+							w.CloseWithError(errs.NotImplement)
 							return
 						}
+						// 这里就不返回错误了,避免大量栈数据
+						log.Errorln(err)
+						w.CloseWithError(err)
+						return
+					}
 
-						if result.Err != nil {
-							close(d.handleError(result.Err))
-							return
-						}
-					}()
+					if result.Err != nil {
+						w.CloseWithError(d.handleError(result.Err))
+						return
+					}
+				}()
 
-					return utils.NewReadCloser(r, func() error {
-						d.plugin.exports.ContextManager().Remove(ctxHandle)
-						streamManager.Remove(streamHandle)
-						return r.Close()
-					}), nil
-				}),
-			},
+				return utils.NewReadCloser(r, func() error {
+					d.plugin.exports.ContextManager().Remove(ctxHandle)
+					streamManager.Remove(streamHandle)
+					return r.Close()
+				}), nil
+			}),
 		}, nil
 	}
 

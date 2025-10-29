@@ -1,8 +1,6 @@
 package plugin_warp
 
 import (
-	"sync"
-
 	"github.com/OpenListTeam/OpenList/v4/internal/driver"
 	"github.com/OpenListTeam/OpenList/v4/internal/model"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
@@ -20,13 +18,8 @@ type UploadRequest struct {
 }
 
 type UploadReadableType struct {
-	sync.Mutex
 	model.FileStreamer
-
-	StreamConsume bool
-	PeekUseing    bool
-	RangeUseing   bool
-
+	StreamConsume  bool
 	UpdateProgress driver.UpdateProgress
 }
 

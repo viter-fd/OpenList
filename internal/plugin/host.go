@@ -2,7 +2,6 @@ package plugin
 
 import (
 	"context"
-	"io"
 	"maps"
 
 	log "github.com/sirupsen/logrus"
@@ -73,7 +72,6 @@ func (host *DriverHost) Instantiate(ctx context.Context, rt wazero.Runtime) erro
 	exportsType.Export("[resource-drop]readable", host.DropReadable)
 	exportsType.Export("[method]readable.streams", host.Stream)
 	exportsType.Export("[method]readable.peek", host.StreamPeek)
-	exportsType.Export("[method]readable.range", host.StreamRange)
 	exportsType.Export("[method]readable.get-hasher", host.GetHasher)
 	exportsType.Export("[method]readable.update-progress", host.UpdateProgress)
 	if _, err := exportsType.Instantiate(ctx); err != nil {
@@ -141,8 +139,6 @@ func (host *DriverHost) Stream(this plugin_warp.UploadReadable) witgo.Result[io_
 	if !ok {
 		return witgo.Err[io_v0_2.OutputStream, string]("UploadReadable::Stream: ErrorCodeBadDescriptor")
 	}
-	upload.Mutex.Lock()
-	defer upload.Mutex.Unlock()
 
 	if !upload.StreamConsume {
 		upload.StreamConsume = true
@@ -163,67 +159,12 @@ func (host *DriverHost) StreamPeek(this plugin_warp.UploadReadable, offset uint6
 		return witgo.Err[io_v0_2.OutputStream]("UploadReadable::StreamPeek: StreamConsume")
 	}
 
-	upload.Mutex.Lock()
-	defer upload.Mutex.Unlock()
-
-	if upload.PeekUseing {
-		return witgo.Err[io_v0_2.OutputStream]("UploadReadable::StreamPeek: PeekUseing")
-	}
-
-	if upload.RangeUseing {
-		return witgo.Err[io_v0_2.OutputStream]("UploadReadable::StreamPeek: RangeUseing")
-	}
-
-	upload.PeekUseing = true
 	peekReader, err := upload.RangeRead(http_range.Range{Start: int64(offset), Length: int64(len)})
 	if err != nil {
 		return witgo.Err[io_v0_2.OutputStream](err.Error())
 	}
 
-	peekReadCloser := utils.NewReadCloser(peekReader, func() error {
-		upload.PeekUseing = false
-		return nil
-	})
-
-	streamHandle := host.StreamManager().Add(&manager_io.Stream{Reader: peekReadCloser, Closer: peekReadCloser})
-	return witgo.Ok[io_v0_2.OutputStream, string](streamHandle)
-}
-
-// stream-range: func(offset: u64, len: u64) -> result<output-stream, string>;
-func (host *DriverHost) StreamRange(this plugin_warp.UploadReadable, offset uint64, len uint64) witgo.Result[io_v0_2.OutputStream, string] {
-	upload, ok := host.uploads.Get(this)
-	if !ok {
-		return witgo.Err[io_v0_2.OutputStream]("UploadReadable::StreamRange: ErrorCodeBadDescriptor")
-	}
-
-	upload.Mutex.Lock()
-	defer upload.Mutex.Unlock()
-
-	if upload.StreamConsume {
-		return witgo.Err[io_v0_2.OutputStream]("UploadReadable::StreamRange: StreamConsume")
-	}
-
-	if upload.PeekUseing {
-		return witgo.Err[io_v0_2.OutputStream]("UploadReadable::StreamPeek: PeekUseing")
-	}
-
-	upload.RangeUseing = true
-
-	var err error
-	file := upload.GetFile()
-	if file == nil {
-		file, err = upload.CacheFullAndWriter(nil, nil)
-	}
-	if err != nil {
-		return witgo.Err[io_v0_2.OutputStream](err.Error())
-	}
-
-	peekReader := io.NewSectionReader(file, int64(offset), int64(len))
-	if err != nil {
-		return witgo.Err[io_v0_2.OutputStream](err.Error())
-	}
-
-	streamHandle := host.StreamManager().Add(&manager_io.Stream{Reader: peekReader, Seeker: peekReader})
+	streamHandle := host.StreamManager().Add(&manager_io.Stream{Reader: peekReader})
 	return witgo.Ok[io_v0_2.OutputStream, string](streamHandle)
 }
 
@@ -233,8 +174,6 @@ func (host *DriverHost) GetHasher(this plugin_warp.UploadReadable, hashs []plugi
 	if !ok {
 		return witgo.Err[[]plugin_warp.HashInfo]("UploadReadable: ErrorCodeBadDescriptor")
 	}
-	upload.Mutex.Lock()
-	defer upload.Mutex.Unlock()
 
 	resultHashs := plugin_warp.HashInfoConvert2(upload.GetHash(), hashs)
 	if resultHashs != nil {
@@ -250,7 +189,7 @@ func (host *DriverHost) GetHasher(this plugin_warp.UploadReadable, hashs []plugi
 	hashTypes := plugin_warp.HashAlgConverts(hashs)
 
 	hashers := utils.NewMultiHasher(hashTypes)
-	if _, err := upload.CacheFullAndWriter(nil, hashers); err != nil {
+	if _, err := upload.CacheFullAndWriter(&upload.UpdateProgress, hashers); err != nil {
 		return witgo.Err[[]plugin_warp.HashInfo](err.Error())
 	}
 
@@ -262,9 +201,7 @@ func (host *DriverHost) GetHasher(this plugin_warp.UploadReadable, hashs []plugi
 // update-progress: func(progress: f64);
 func (host *DriverHost) UpdateProgress(this plugin_warp.UploadReadable, progress float64) {
 	upload, ok := host.uploads.Get(this)
-	if ok && upload.UpdateProgress != nil {
-		upload.Mutex.Lock()
-		defer upload.Mutex.Unlock()
+	if ok {
 		upload.UpdateProgress(progress)
 	}
 }

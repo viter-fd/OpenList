@@ -369,11 +369,12 @@ func (d *WasmDriver) Link(ctx context.Context, file model.Obj, args model.LinkAr
 
 	if result.Ok.Resource.RangeStream != nil {
 		streamManager := d.plugin.exports.StreamManager()
+		fileSize := obj.GetSize()
 		return &model.Link{
 			RangeReader: stream.RateLimitRangeReaderFunc(func(ctx context.Context, httpRange http_range.Range) (io.ReadCloser, error) {
 				var size uint64
-				if httpRange.Length < 0 {
-					size = uint64(obj.GetSize() - httpRange.Start)
+				if httpRange.Length < 0 || httpRange.Start+httpRange.Length > fileSize {
+					size = uint64(fileSize - httpRange.Start)
 				} else {
 					size = uint64(httpRange.Length)
 				}
@@ -398,7 +399,7 @@ func (d *WasmDriver) Link(ctx context.Context, file model.Obj, args model.LinkAr
 					Obj       *plugin_warp.Object
 					LinkArgs  plugin_warp.LinkArgs
 					RangeSpec RangeSpec
-				}{d.handle, ctxHandle, obj, plugin_warp.LinkArgs{IP: args.IP, Header: headersHandle}, RangeSpec{Offset: uint64(httpRange.Start), Size: uint64(httpRange.Length), Stream: streamHandle}}
+				}{d.handle, ctxHandle, obj, plugin_warp.LinkArgs{IP: args.IP, Header: headersHandle}, RangeSpec{Offset: uint64(httpRange.Start), Size: size, Stream: streamHandle}}
 
 				go func() {
 					if err := d.plugin.guest.Call(ctx, PluginPrefix+"[method]driver.link-range", &result, param); err != nil {

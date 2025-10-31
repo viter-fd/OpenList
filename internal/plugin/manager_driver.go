@@ -32,7 +32,7 @@ func (h *DriverPluginHandler) Register(ctx context.Context, plugin *PluginInfo) 
 	err = op.RegisterDriver(func() driver.Driver {
 		driver, err := plugin.driver.NewWasmDriver()
 		if err != nil {
-			log.Errorf("deferred load driver plugin err: %w", err)
+			log.Errorf("deferred load driver plugin err: %v", err)
 		}
 		return driver
 	})

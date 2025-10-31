@@ -117,20 +117,20 @@ func (host *DriverHost) Log(level plugin_warp.LogLevel, message string) {
 	}
 }
 
-// load-config: func() -> result<string, string>;
+// load-config: func(driver: u32) -> result<list<u8>, string>;
 func (host *DriverHost) LoadConfig(driverHandle uint32) witgo.Result[[]byte, string] {
 	driver, ok := host.driver.Get(driverHandle)
 	if !ok || driver == nil {
-		return witgo.Err[[]byte, string]("host.driver is null, loading timing too early")
+		return witgo.Err[[]byte]("host.driver is null, loading timing too early")
 	}
 	return witgo.Ok[[]byte, string](driver.additional.Bytes())
 }
 
-// save-config: func(config: string) -> result<_, string>;
+// save-config: func(driver: u32, config: list<u8>) -> result<_, string>;
 func (host *DriverHost) SaveConfig(driverHandle uint32, config []byte) witgo.Result[witgo.Unit, string] {
 	driver, ok := host.driver.Get(driverHandle)
 	if !ok || driver == nil {
-		return witgo.Err[witgo.Unit, string]("host.driver is null, loading timing too early")
+		return witgo.Err[witgo.Unit]("host.driver is null, loading timing too early")
 	}
 
 	driver.additional.SetBytes(config)
@@ -138,39 +138,38 @@ func (host *DriverHost) SaveConfig(driverHandle uint32, config []byte) witgo.Res
 	return witgo.Ok[witgo.Unit, string](witgo.Unit{})
 }
 
-// stream: func() -> result<output-stream, string>;
-func (host *DriverHost) Stream(this plugin_warp.UploadReadable) witgo.Result[io_v0_2.OutputStream, string] {
+// streams: func() -> result<input-stream, string>;
+func (host *DriverHost) Stream(this plugin_warp.UploadReadable) witgo.Result[io_v0_2.InputStream, string] {
 	upload, ok := host.uploads.Get(this)
 	if !ok {
-		return witgo.Err[io_v0_2.OutputStream, string]("UploadReadable::Stream: ErrorCodeBadDescriptor")
+		return witgo.Err[io_v0_2.InputStream]("UploadReadable::Stream: ErrorCodeBadDescriptor")
+	}
+	if upload.StreamConsume {
+		return witgo.Err[io_v0_2.InputStream]("UploadReadable::Stream: StreamConsume")
 	}
 
-	if !upload.StreamConsume {
-		upload.StreamConsume = true
-		streamHandle := host.StreamManager().Add(manager_io.NewAsyncStreamForReader(upload))
-		return witgo.Ok[io_v0_2.OutputStream, string](streamHandle)
-	}
-	return witgo.Err[io_v0_2.OutputStream, string]("UploadReadable::Stream: StreamConsume")
+	upload.StreamConsume = true
+	streamHandle := host.StreamManager().Add(&manager_io.Stream{Reader: upload, Seeker: upload.GetFile()})
+	return witgo.Ok[io_v0_2.InputStream, string](streamHandle)
 }
 
-// stream-peek: func(offset: u64, len: u64) -> result<output-stream, string>;
-func (host *DriverHost) StreamPeek(this plugin_warp.UploadReadable, offset uint64, len uint64) witgo.Result[io_v0_2.OutputStream, string] {
+// peek: func(offset: u64, len: u64) -> result<input-stream, string>;
+func (host *DriverHost) StreamPeek(this plugin_warp.UploadReadable, offset uint64, len uint64) witgo.Result[io_v0_2.InputStream, string] {
 	upload, ok := host.uploads.Get(this)
 	if !ok {
-		return witgo.Err[io_v0_2.OutputStream]("UploadReadable::StreamPeek: ErrorCodeBadDescriptor")
+		return witgo.Err[io_v0_2.InputStream]("UploadReadable::StreamPeek: ErrorCodeBadDescriptor")
 	}
-
 	if upload.StreamConsume {
-		return witgo.Err[io_v0_2.OutputStream]("UploadReadable::StreamPeek: StreamConsume")
+		return witgo.Err[io_v0_2.InputStream]("UploadReadable::StreamPeek: StreamConsume")
 	}
 
 	peekReader, err := upload.RangeRead(http_range.Range{Start: int64(offset), Length: int64(len)})
 	if err != nil {
-		return witgo.Err[io_v0_2.OutputStream](err.Error())
+		return witgo.Err[io_v0_2.InputStream](err.Error())
 	}
-
-	streamHandle := host.StreamManager().Add(&manager_io.Stream{Reader: peekReader})
-	return witgo.Ok[io_v0_2.OutputStream, string](streamHandle)
+	seeker, _ := peekReader.(io.Seeker)
+	streamHandle := host.StreamManager().Add(&manager_io.Stream{Reader: peekReader, Seeker: seeker})
+	return witgo.Ok[io_v0_2.InputStream, string](streamHandle)
 }
 
 // chunks: func(len: u32) -> result<u32, string>;
@@ -185,6 +184,7 @@ func (host *DriverHost) Chunks(this plugin_warp.UploadReadable, len uint32) witg
 	if upload.SectionReader != nil {
 		return witgo.Err[uint32]("UploadReadable::Chunks: Already exist chunk reader")
 	}
+
 	ss, err := stream.NewStreamSectionReader(upload, int(len), &upload.UpdateProgress)
 	if err != nil {
 		return witgo.Err[uint32](err.Error())
@@ -233,7 +233,7 @@ func (host *DriverHost) ChunkReset(this plugin_warp.UploadReadable, chunk io_v0_
 	return witgo.Ok[witgo.Unit, string](witgo.Unit{})
 }
 
-// get-hasher: func(hashs: list<hash-alg>) -> result<hash-info, string>;
+// get-hasher: func(hashs: list<hash-alg>) -> result<list<hash-info>, string>;
 func (host *DriverHost) GetHasher(this plugin_warp.UploadReadable, hashs []plugin_warp.HashAlg) witgo.Result[[]plugin_warp.HashInfo, string] {
 	upload, ok := host.uploads.Get(this)
 	if !ok {

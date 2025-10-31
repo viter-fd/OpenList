@@ -35,9 +35,7 @@ type UploadReadableManager = witgo.ResourceManager[*UploadReadableType]
 type UploadReadable = uint32
 
 func NewUploadManager() *UploadReadableManager {
-	return witgo.NewResourceManager[*UploadReadableType](func(resource *UploadReadableType) {
-		resource.FileStreamer.Close()
-	})
+	return witgo.NewResourceManager[*UploadReadableType](nil)
 }
 
 func HashTypeConvert(typ *utils.HashType) HashAlg {

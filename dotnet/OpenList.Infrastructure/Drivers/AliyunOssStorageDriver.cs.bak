@@ -1,0 +1,245 @@
+using System.Text.Json;
+using Aliyun.OSS;
+using OpenList.Core.Models;
+
+namespace OpenList.Infrastructure.Drivers;
+
+public class AliyunOssStorageDriver : BaseStorageDriver
+{
+    private OssClient? _client;
+    private string _bucketName = string.Empty;
+    private string _prefix = string.Empty;
+
+    public override void Initialize(JsonElement config)
+    {
+        var endpoint = config.GetProperty("Endpoint").GetString() 
+            ?? throw new InvalidOperationException("Endpoint is required");
+        var accessKeyId = config.GetProperty("AccessKeyId").GetString() 
+            ?? throw new InvalidOperationException("AccessKeyId is required");
+        var accessKeySecret = config.GetProperty("AccessKeySecret").GetString() 
+            ?? throw new InvalidOperationException("AccessKeySecret is required");
+        _bucketName = config.GetProperty("Bucket").GetString() 
+            ?? throw new InvalidOperationException("Bucket is required");
+        _prefix = config.TryGetProperty("Prefix", out var prefix) 
+            ? prefix.GetString() ?? "" : "";
+
+        _client = new OssClient(endpoint, accessKeyId, accessKeySecret);
+    }
+
+    public override async Task<FileList> ListAsync(string path)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        return await Task.Run(() =>
+        {
+            var key = GetFullKey(path);
+            var request = new ListObjectsRequest(_bucketName)
+            {
+                Prefix = key.TrimStart('/'),
+                Delimiter = "/",
+                MaxKeys = 1000
+            };
+
+            var result = _client.ListObjects(request);
+            var items = new List<FileItem>();
+
+            // 添加目录
+            foreach (var prefix in result.CommonPrefixes)
+            {
+                var name = prefix.TrimEnd('/').Split('/').Last();
+                items.Add(new FileItem
+                {
+                    Name = name,
+                    Path = $"{path.TrimEnd('/')}/{name}",
+                    IsDirectory = true,
+                    Size = 0,
+                    ModifiedTime = DateTime.UtcNow,
+                    FileType = FileType.Folder
+                });
+            }
+
+            // 添加文件
+            foreach (var obj in result.ObjectSummaries)
+            {
+                if (obj.Key.EndsWith('/')) continue;
+
+                var name = obj.Key.Split('/').Last();
+                if (string.IsNullOrEmpty(name)) continue;
+
+                items.Add(new FileItem
+                {
+                    Name = name,
+                    Path = $"{path.TrimEnd('/')}/{name}",
+                    IsDirectory = false,
+                    Size = obj.Size,
+                    ModifiedTime = obj.LastModified,
+                    FileType = GetFileType(name),
+                    MimeType = GetMimeType(name)
+                });
+            }
+
+            return new FileList
+            {
+                Items = items,
+                Path = path
+            };
+        });
+    }
+
+    public override async Task<FileStreamInfo> GetAsync(string path)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        return await Task.Run(() =>
+        {
+            var key = GetFullKey(path);
+            var obj = _client.GetObject(_bucketName, key.TrimStart('/'));
+
+            return new FileStreamInfo
+            {
+                Stream = obj.Content,
+                ContentType = obj.Metadata.ContentType,
+                ContentLength = obj.Metadata.ContentLength,
+                FileName = Path.GetFileName(path)
+            };
+        });
+    }
+
+    public override async Task<bool> UploadAsync(string path, Stream content)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        return await Task.Run(() =>
+        {
+            var key = GetFullKey(path);
+            var metadata = new ObjectMetadata
+            {
+                ContentType = GetMimeType(path)
+            };
+
+            _client.PutObject(_bucketName, key.TrimStart('/'), content, metadata);
+            return true;
+        });
+    }
+
+    public override async Task<bool> MakeDirAsync(string path)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        return await Task.Run(() =>
+        {
+            // OSS 不需要显式创建目录，创建一个空的目录标记文件
+            var key = GetFullKey(path).TrimStart('/').TrimEnd('/') + "/";
+            using var emptyStream = new MemoryStream();
+            _client.PutObject(_bucketName, key, emptyStream);
+            return true;
+        });
+    }
+
+    public override async Task<bool> RemoveAsync(string path)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        return await Task.Run(() =>
+        {
+            var key = GetFullKey(path).TrimStart('/');
+            
+            // 检查是否为目录
+            var listRequest = new ListObjectsRequest(_bucketName)
+            {
+                Prefix = key.TrimEnd('/') + "/",
+                MaxKeys = 1
+            };
+            
+            var listResult = _client.ListObjects(listRequest);
+            
+            if (listResult.ObjectSummaries.Count > 0 || listResult.CommonPrefixes.Count > 0)
+            {
+                // 删除目录及其所有内容
+                var deleteRequest = new ListObjectsRequest(_bucketName)
+                {
+                    Prefix = key.TrimEnd('/') + "/"
+                };
+                
+                var deleteResult = _client.ListObjects(deleteRequest);
+                var keys = deleteResult.ObjectSummaries.Select(obj => obj.Key).ToList();
+                
+                if (keys.Count > 0)
+                {
+                    var deleteObjectsRequest = new DeleteObjectsRequest(_bucketName, keys, false);
+                    _client.DeleteObjects(deleteObjectsRequest);
+                }
+            }
+            else
+            {
+                // 删除单个文件
+                _client.DeleteObject(_bucketName, key);
+            }
+
+            return true;
+        });
+    }
+
+    public override async Task<bool> RenameAsync(string path, string newName)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        return await Task.Run(() =>
+        {
+            var sourceKey = GetFullKey(path).TrimStart('/');
+            var directory = Path.GetDirectoryName(path)?.Replace('\\', '/') ?? "/";
+            var destKey = GetFullKey($"{directory}/{newName}".Replace("//", "/")).TrimStart('/');
+
+            // OSS 不支持重命名，需要复制后删除
+            _client.CopyObject(new CopyObjectRequest(_bucketName, sourceKey, _bucketName, destKey));
+            _client.DeleteObject(_bucketName, sourceKey);
+
+            return true;
+        });
+    }
+
+    public override async Task<bool> MoveAsync(string sourcePath, string destPath)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        return await Task.Run(() =>
+        {
+            var sourceKey = GetFullKey(sourcePath).TrimStart('/');
+            var destKey = GetFullKey(destPath).TrimStart('/');
+
+            _client.CopyObject(new CopyObjectRequest(_bucketName, sourceKey, _bucketName, destKey));
+            _client.DeleteObject(_bucketName, sourceKey);
+
+            return true;
+        });
+    }
+
+    public override async Task<bool> CopyAsync(string sourcePath, string destPath)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        return await Task.Run(() =>
+        {
+            var sourceKey = GetFullKey(sourcePath).TrimStart('/');
+            var destKey = GetFullKey(destPath).TrimStart('/');
+
+            _client.CopyObject(new CopyObjectRequest(_bucketName, sourceKey, _bucketName, destKey));
+
+            return true;
+        });
+    }
+
+    private string GetFullKey(string path)
+    {
+        var key = path.TrimStart('/');
+        return string.IsNullOrEmpty(_prefix) 
+            ? key 
+            : $"{_prefix.Trim('/')}/{key}".TrimStart('/');
+    }
+
+    public override void Dispose()
+    {
+        // OssClient 没有 Dispose 方法
+        base.Dispose();
+    }
+}

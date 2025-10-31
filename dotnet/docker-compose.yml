@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  openlist:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: openlist-dotnet
+    ports:
+      - "5244:5244"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/openlist.db
+      - Server__Port=5244
+      - Server__Address=0.0.0.0
+      - Storage__LocalRootPath=/app/data/storage
+    volumes:
+      - openlist-data:/app/data
+    restart: unless-stopped
+    networks:
+      - openlist-network
+
+networks:
+  openlist-network:
+    driver: bridge
+
+volumes:
+  openlist-data:
+    driver: local

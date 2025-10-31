@@ -1,0 +1,144 @@
+using System.Net;
+using System.Text.Json;
+using WebDav;
+using OpenList.Core.Models;
+
+namespace OpenList.Infrastructure.Drivers;
+
+public class WebDavStorageDriver : BaseStorageDriver
+{
+    private WebDavClient? _client;
+    private string _baseUrl = string.Empty;
+
+    public override void Initialize(JsonElement config)
+    {
+        _baseUrl = config.GetProperty("Url").GetString() 
+            ?? throw new InvalidOperationException("Url is required");
+        var username = config.TryGetProperty("Username", out var user) 
+            ? user.GetString() : null;
+        var password = config.TryGetProperty("Password", out var pass) 
+            ? pass.GetString() : null;
+
+        var clientParams = new WebDavClientParams
+        {
+            BaseAddress = new Uri(_baseUrl)
+        };
+
+        if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+        {
+            clientParams.Credentials = new NetworkCredential(username, password);
+        }
+
+        _client = new WebDavClient(clientParams);
+    }
+
+    public override async Task<FileList> ListAsync(string path)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        var result = await _client.Propfind(GetFullUrl(path));
+        if (!result.IsSuccessful)
+        {
+            throw new InvalidOperationException($"Failed to list directory: {result.Description}");
+        }
+
+        var items = new List<FileItem>();
+        foreach (var resource in result.Resources.Skip(1)) // 跳过第一个（当前目录）
+        {
+            var name = resource.Uri.TrimEnd('/').Split('/').Last();
+            if (string.IsNullOrEmpty(name)) continue;
+
+            items.Add(new FileItem
+            {
+                Name = Uri.UnescapeDataString(name),
+                Path = $"{path.TrimEnd('/')}/{Uri.UnescapeDataString(name)}",
+                IsDirectory = resource.IsCollection,
+                Size = resource.ContentLength ?? 0,
+                ModifiedTime = resource.LastModifiedDate ?? DateTime.UtcNow,
+                FileType = resource.IsCollection ? FileType.Folder : GetFileType(name),
+                MimeType = resource.ContentType ?? GetMimeType(name)
+            });
+        }
+
+        return new FileList
+        {
+            Items = items,
+            Path = path
+        };
+    }
+
+    public override async Task<FileStreamInfo> GetAsync(string path)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        var response = await _client.GetRawFile(GetFullUrl(path));
+        if (!response.IsSuccessful)
+        {
+            throw new InvalidOperationException($"Failed to get file: {response.Description}");
+        }
+
+        return new FileStreamInfo
+        {
+            Stream = response.Stream,
+            ContentType = GetMimeType(path),
+            ContentLength = response.Stream.Length,
+            FileName = Path.GetFileName(path)
+        };
+    }
+
+    public override async Task<bool> UploadAsync(string path, Stream content)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        var result = await _client.PutFile(GetFullUrl(path), content);
+        return result.IsSuccessful;
+    }
+
+    public override async Task<bool> MakeDirAsync(string path)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        var result = await _client.Mkcol(GetFullUrl(path));
+        return result.IsSuccessful;
+    }
+
+    public override async Task<bool> RemoveAsync(string path)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        var result = await _client.Delete(GetFullUrl(path));
+        return result.IsSuccessful;
+    }
+
+    public override async Task<bool> RenameAsync(string path, string newName)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        var directory = Path.GetDirectoryName(path)?.Replace('\\', '/') ?? "/";
+        var destPath = $"{directory}/{newName}".Replace("//", "/");
+        
+        var result = await _client.Move(GetFullUrl(path), GetFullUrl(destPath));
+        return result.IsSuccessful;
+    }
+
+    public override async Task<bool> MoveAsync(string sourcePath, string destPath)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        var result = await _client.Move(GetFullUrl(sourcePath), GetFullUrl(destPath));
+        return result.IsSuccessful;
+    }
+
+    public override async Task<bool> CopyAsync(string sourcePath, string destPath)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        var result = await _client.Copy(GetFullUrl(sourcePath), GetFullUrl(destPath));
+        return result.IsSuccessful;
+    }
+
+    private string GetFullUrl(string path)
+    {
+        return $"{_baseUrl.TrimEnd('/')}{path}";
+    }
+}

@@ -1,0 +1,164 @@
+using System.Net;
+using System.Text.Json;
+using FluentFTP;
+using OpenList.Core.Models;
+
+namespace OpenList.Infrastructure.Drivers;
+
+public class FtpStorageDriver : BaseStorageDriver
+{
+    private AsyncFtpClient? _client;
+
+    public override void Initialize(JsonElement config)
+    {
+        var host = config.GetProperty("Host").GetString() 
+            ?? throw new InvalidOperationException("Host is required");
+        var port = config.TryGetProperty("Port", out var p) ? p.GetInt32() : 21;
+        var username = config.TryGetProperty("Username", out var user) 
+            ? user.GetString() : "anonymous";
+        var password = config.TryGetProperty("Password", out var pass) 
+            ? pass.GetString() : "";
+
+        _client = new AsyncFtpClient(host, username, password, port);
+        _client.Config.EncryptionMode = FtpEncryptionMode.Auto;
+        _client.Config.ValidateAnyCertificate = true;
+    }
+
+    public override async Task<FileList> ListAsync(string path)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        await EnsureConnectedAsync();
+        
+        var items = await _client.GetListing(path);
+        var fileItems = new List<FileItem>();
+
+        foreach (var item in items)
+        {
+            fileItems.Add(new FileItem
+            {
+                Name = item.Name,
+                Path = $"{path.TrimEnd('/')}/{item.Name}",
+                IsDirectory = item.Type == FtpObjectType.Directory,
+                Size = item.Size,
+                ModifiedTime = item.Modified,
+                FileType = item.Type == FtpObjectType.Directory ? FileType.Folder : GetFileType(item.Name),
+                MimeType = GetMimeType(item.Name)
+            });
+        }
+
+        return new FileList
+        {
+            Items = fileItems,
+            Path = path
+        };
+    }
+
+    public override async Task<FileStreamInfo> GetAsync(string path)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        await EnsureConnectedAsync();
+
+        var stream = new MemoryStream();
+        await _client.DownloadStream(stream, path);
+        stream.Position = 0;
+
+        return new FileStreamInfo
+        {
+            Stream = stream,
+            ContentType = GetMimeType(path),
+            ContentLength = stream.Length,
+            FileName = Path.GetFileName(path)
+        };
+    }
+
+    public override async Task<bool> UploadAsync(string path, Stream content)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        await EnsureConnectedAsync();
+
+        var result = await _client.UploadStream(content, path, FtpRemoteExists.Overwrite);
+        return result.IsSuccess();
+    }
+
+    public override async Task<bool> MakeDirAsync(string path)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        await EnsureConnectedAsync();
+
+        return await _client.CreateDirectory(path);
+    }
+
+    public override async Task<bool> RemoveAsync(string path)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        await EnsureConnectedAsync();
+
+        var item = await _client.GetObjectInfo(path);
+        if (item.Type == FtpObjectType.Directory)
+        {
+            await _client.DeleteDirectory(path);
+        }
+        else
+        {
+            await _client.DeleteFile(path);
+        }
+
+        return true;
+    }
+
+    public override async Task<bool> RenameAsync(string path, string newName)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        await EnsureConnectedAsync();
+
+        var directory = Path.GetDirectoryName(path)?.Replace('\\', '/') ?? "/";
+        var destPath = $"{directory}/{newName}".Replace("//", "/");
+        
+        return await _client.Rename(path, destPath);
+    }
+
+    public override async Task<bool> MoveAsync(string sourcePath, string destPath)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        await EnsureConnectedAsync();
+
+        return await _client.Rename(sourcePath, destPath);
+    }
+
+    public override async Task<bool> CopyAsync(string sourcePath, string destPath)
+    {
+        if (_client == null) throw new InvalidOperationException("Driver not initialized");
+
+        await EnsureConnectedAsync();
+
+        // FTP 不直接支持复制，需要先下载再上传
+        var stream = new MemoryStream();
+        await _client.DownloadStream(stream, sourcePath);
+        stream.Position = 0;
+        
+        var result = await _client.UploadStream(stream, destPath, FtpRemoteExists.Overwrite);
+        return result.IsSuccess();
+    }
+
+    private async Task EnsureConnectedAsync()
+    {
+        if (_client != null && !_client.IsConnected)
+        {
+            await _client.Connect();
+        }
+    }
+
+    public override void Dispose()
+    {
+        _client?.Disconnect();
+        _client?.Dispose();
+        base.Dispose();
+    }
+}
